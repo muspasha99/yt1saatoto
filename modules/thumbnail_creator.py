@@ -90,7 +90,7 @@ def _draw_text_with_shadow(draw, position, text, font, fill="white", shadow_offs
     draw.text((x, y), text, fill=fill, font=font)
 
 
-def create_thumbnail(background_video_path, title_text, output_path, duration_text="1 HOUR"):
+def create_thumbnail(background_video_path, title_text, output_path):
     """
     Videodan bir kare çıkarır, üzerine basit yazı ekler.
     
@@ -135,26 +135,6 @@ def create_thumbnail(background_video_path, title_text, output_path, duration_te
     
     _draw_text_with_shadow(draw, (text_x, text_y), title_text, title_font)
     
-    # 5. Süre etiketi (sağ üst köşe, kırmızı kutu)
-    duration_bbox = draw.textbbox((0, 0), duration_text, font=duration_font)
-    dur_width = duration_bbox[2] - duration_bbox[0]
-    dur_height = duration_bbox[3] - duration_bbox[1]
-    
-    padding = 20
-    box_x = THUMBNAIL_SIZE[0] - dur_width - padding * 2 - 30
-    box_y = 30
-    box = [
-        box_x, box_y,
-        box_x + dur_width + padding * 2, box_y + dur_height + padding
-    ]
-    draw.rounded_rectangle(box, radius=12, fill=(255, 50, 50, 230))
-    
-    draw.text(
-        (box_x + padding, box_y + padding // 2),
-        duration_text,
-        fill="white",
-        font=duration_font,
-    )
     
     # 6. Kaydet
     img.save(output_path, "JPEG", quality=95)
