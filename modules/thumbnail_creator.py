@@ -1,12 +1,45 @@
 """
 Pillow ile thumbnail oluşturur.
-Pixabay resmi + gradient overlay + başlık metni + duration etiketi.
+Video'dan bir kare çıkarır + üzerine basit yazı ekler.
 """
 import os
+import subprocess
+import random
 from PIL import Image, ImageDraw, ImageFont, ImageFilter
 
 
 THUMBNAIL_SIZE = (1280, 720)
+
+
+def extract_frame_from_video(video_path, output_path, time_offset=None):
+    """
+    Videodan rastgele bir kare çıkarır.
+    Loop'lanmamış kısa videodan, ortalardan bir frame alıyoruz.
+    """
+    # Video süresinden orta bir nokta seç (rastgele 30%-70% arası)
+    if time_offset is None:
+        # Video süresini al
+        cmd_probe = [
+            "ffprobe", "-v", "error",
+            "-show_entries", "format=duration",
+            "-of", "default=noprint_wrappers=1:nokey=1",
+            video_path,
+        ]
+        result = subprocess.run(cmd_probe, capture_output=True, text=True, check=True)
+        duration = float(result.stdout.strip())
+        # Ortadaki bölümden rastgele bir nokta
+        time_offset = random.uniform(duration * 0.3, duration * 0.7)
+    
+    cmd = [
+        "ffmpeg", "-y",
+        "-ss", str(time_offset),
+        "-i", video_path,
+        "-vframes", "1",
+        "-q:v", "2",  # Yüksek kalite JPEG
+        output_path,
+    ]
+    subprocess.run(cmd, check=True, capture_output=True)
+    return output_path
 
 
 def _resize_and_crop(image, target_size):
@@ -15,12 +48,10 @@ def _resize_and_crop(image, target_size):
     img_ratio = image.width / image.height
     
     if img_ratio > target_ratio:
-        # Resim çok geniş, yüksekliğe göre kırp
         new_width = int(image.height * target_ratio)
         offset = (image.width - new_width) // 2
         image = image.crop((offset, 0, offset + new_width, image.height))
     else:
-        # Resim çok dar, genişliğe göre kırp
         new_height = int(image.width / target_ratio)
         offset = (image.height - new_height) // 2
         image = image.crop((0, offset, image.width, offset + new_height))
@@ -28,125 +59,87 @@ def _resize_and_crop(image, target_size):
     return image.resize(target_size, Image.LANCZOS)
 
 
-def _add_gradient_overlay(image, opacity=0.5):
-    """Alttan üste doğru koyu gradient ekler (yazı okunsun diye)."""
-    gradient = Image.new("RGBA", image.size, (0, 0, 0, 0))
-    draw = ImageDraw.Draw(gradient)
-    
-    width, height = image.size
-    for y in range(height):
-        # Alt kısım koyu, üst kısım hafif şeffaf
-        alpha = int(255 * opacity * (y / height) ** 1.5)
-        draw.line([(0, y), (width, y)], fill=(0, 0, 0, alpha))
-    
+def _add_subtle_overlay(image, opacity=0.35):
+    """Hafif koyu overlay (yazı okunsun ama animasyon görünsün)."""
+    overlay = Image.new("RGBA", image.size, (0, 0, 0, int(255 * opacity)))
     image = image.convert("RGBA")
-    return Image.alpha_composite(image, gradient).convert("RGB")
+    return Image.alpha_composite(image, overlay).convert("RGB")
 
 
-def _add_vignette(image, strength=0.4):
-    """Köşeleri hafif karartır (sinematik görünüm)."""
-    width, height = image.size
-    vignette = Image.new("RGBA", (width, height), (0, 0, 0, 0))
-    draw = ImageDraw.Draw(vignette)
-    
-    cx, cy = width / 2, height / 2
-    max_dist = (cx ** 2 + cy ** 2) ** 0.5
-    
-    # Radial gradient için bir overlay
-    for y in range(0, height, 4):
-        for x in range(0, width, 4):
-            dist = ((x - cx) ** 2 + (y - cy) ** 2) ** 0.5
-            ratio = dist / max_dist
-            alpha = int(255 * strength * ratio ** 2)
-            draw.rectangle([x, y, x + 4, y + 4], fill=(0, 0, 0, alpha))
-    
-    image = image.convert("RGBA")
-    return Image.alpha_composite(image, vignette).convert("RGB")
-
-
-def _get_font(size, bold=True):
+def _get_font(size):
     """Sistem fontunu yükler."""
-    # GitHub Actions Linux için yaygın font yolları
     font_paths = [
         "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
         "/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf",
         "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
-        "/Library/Fonts/Arial Bold.ttf",
         "C:\\Windows\\Fonts\\arialbd.ttf",
     ]
-    
     for path in font_paths:
         if os.path.exists(path):
             try:
                 return ImageFont.truetype(path, size)
             except Exception:
                 continue
-    
-    # Fallback
     return ImageFont.load_default()
 
 
-def _draw_text_with_shadow(draw, position, text, font, fill="white", shadow_offset=4):
+def _draw_text_with_shadow(draw, position, text, font, fill="white", shadow_offset=5):
     """Metni gölge ile çizer."""
     x, y = position
-    # Gölge
-    draw.text((x + shadow_offset, y + shadow_offset), text, fill=(0, 0, 0, 200), font=font)
-    # Asıl metin
+    draw.text((x + shadow_offset, y + shadow_offset), text, fill=(0, 0, 0, 220), font=font)
     draw.text((x, y), text, fill=fill, font=font)
 
 
-def create_thumbnail(background_image_path, title_text, output_path, duration_text="1 HOUR"):
+def create_thumbnail(background_video_path, title_text, output_path, duration_text="1 HOUR"):
     """
-    Ana thumbnail oluşturma fonksiyonu.
+    Videodan bir kare çıkarır, üzerine basit yazı ekler.
     
-    background_image_path: Pixabay'den indirilen resim
-    title_text: Başlık (kanal adı gibi)
-    output_path: Kaydedilecek thumbnail yolu
-    duration_text: Süre etiketi (örn. "1 HOUR")
+    background_video_path: Pixabay'den indirilen kısa video
+    title_text: Üzerine yazılacak kısa yazı (örn: "LOFI STUDY", "ZEN YOGA")
+    output_path: Thumbnail kaydedileceği yer
+    duration_text: Süre etiketi
     """
     print(f"🎨 Thumbnail oluşturuluyor: '{title_text}'")
     
-    # 1. Resmi aç ve 1280x720'ye getir
-    img = Image.open(background_image_path)
+    # 1. Videodan bir kare çıkar
+    temp_frame = output_path.replace(".jpg", "_frame.jpg")
+    extract_frame_from_video(background_video_path, temp_frame)
+    
+    # 2. Resmi aç ve 1280x720'ye getir
+    img = Image.open(temp_frame)
     img = _resize_and_crop(img, THUMBNAIL_SIZE)
     
-    # 2. Hafif blur (estetik için)
-    img = img.filter(ImageFilter.GaussianBlur(radius=1.5))
+    # 3. Hafif overlay (yazı okunsun ama görüntü kaybolmasın)
+    img = _add_subtle_overlay(img, opacity=0.35)
     
-    # 3. Vignette efekti
-    img = _add_vignette(img, strength=0.5)
-    
-    # 4. Gradient overlay (alttan koyu)
-    img = _add_gradient_overlay(img, opacity=0.7)
-    
-    # 5. Başlık metni
+    # 4. Yazıyı yerleştir
     draw = ImageDraw.Draw(img)
     
-    # Font boyutu metin uzunluğuna göre ayarla
-    if len(title_text) <= 12:
+    # Font boyutu metin uzunluğuna göre
+    if len(title_text) <= 10:
+        title_font_size = 160
+    elif len(title_text) <= 15:
         title_font_size = 130
-    elif len(title_text) <= 18:
-        title_font_size = 100
     else:
-        title_font_size = 80
+        title_font_size = 100
     
-    title_font = _get_font(title_font_size, bold=True)
-    duration_font = _get_font(50, bold=True)
+    title_font = _get_font(title_font_size)
+    duration_font = _get_font(50)
     
-    # Başlık metnini ortala (yatayda)
+    # Başlığı ortala (yatay + dikey)
     bbox = draw.textbbox((0, 0), title_text, font=title_font)
     text_width = bbox[2] - bbox[0]
+    text_height = bbox[3] - bbox[1]
     text_x = (THUMBNAIL_SIZE[0] - text_width) // 2
-    text_y = THUMBNAIL_SIZE[1] - 280  # Alttan yukarıya konumla
+    text_y = (THUMBNAIL_SIZE[1] - text_height) // 2 - 30
     
     _draw_text_with_shadow(draw, (text_x, text_y), title_text, title_font)
     
-    # 6. Süre etiketi (sağ üst köşe)
+    # 5. Süre etiketi (sağ üst köşe, kırmızı kutu)
     duration_bbox = draw.textbbox((0, 0), duration_text, font=duration_font)
     dur_width = duration_bbox[2] - duration_bbox[0]
     dur_height = duration_bbox[3] - duration_bbox[1]
     
-    # Sağ üst köşe arka planı
     padding = 20
     box_x = THUMBNAIL_SIZE[0] - dur_width - padding * 2 - 30
     box_y = 30
@@ -163,8 +156,12 @@ def create_thumbnail(background_image_path, title_text, output_path, duration_te
         font=duration_font,
     )
     
-    # 7. Kaydet
-    img.save(output_path, "JPEG", quality=92)
-    print(f"✅ Thumbnail hazır: {output_path}")
+    # 6. Kaydet
+    img.save(output_path, "JPEG", quality=95)
     
+    # Geçici frame dosyasını sil
+    if os.path.exists(temp_frame):
+        os.remove(temp_frame)
+    
+    print(f"✅ Thumbnail hazır: {output_path}")
     return output_path
