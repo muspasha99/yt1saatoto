@@ -101,7 +101,6 @@ def run_pipeline(channel_code):
             bg_video,
             channel["thumbnail_text"],
             thumbnail,
-            duration_text="1 HOUR",
         )
         
         # 5. ADIM: Gemini ile metadata + Final videoyu oluştur (paralel olabilir ama sıralı yapıyoruz)
