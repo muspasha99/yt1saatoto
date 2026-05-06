@@ -1,0 +1,105 @@
+"""
+Google Drive'dan müzik dosyalarını indirir.
+Her kanal için Drive klasöründen rastgele parçalar seçer.
+"""
+import os
+import io
+import json
+import random
+from google.oauth2.credentials import Credentials
+from googleapiclient.discovery import build
+from googleapiclient.http import MediaIoBaseDownload
+
+
+def _get_drive_service(token_json_str):
+    """Drive token'ı kullanarak Drive servisini başlatır."""
+    token_data = json.loads(token_json_str)
+    creds = Credentials(
+        token=token_data["token"],
+        refresh_token=token_data["refresh_token"],
+        token_uri=token_data["token_uri"],
+        client_id=token_data["client_id"],
+        client_secret=token_data["client_secret"],
+        scopes=token_data["scopes"],
+    )
+    return build("drive", "v3", credentials=creds)
+
+
+def list_audio_files(drive_token_json, folder_id):
+    """Klasördeki tüm ses dosyalarını listeler."""
+    service = _get_drive_service(drive_token_json)
+    query = f"'{folder_id}' in parents and trashed = false"
+    
+    files = []
+    page_token = None
+    while True:
+        response = service.files().list(
+            q=query,
+            spaces="drive",
+            fields="nextPageToken, files(id, name, mimeType, size)",
+            pageToken=page_token,
+            pageSize=200,
+        ).execute()
+        
+        for f in response.get("files", []):
+            # Sadece ses dosyalarını al
+            if f.get("mimeType", "").startswith("audio/") or \
+               f["name"].lower().endswith((".wav", ".mp3", ".m4a", ".flac")):
+                files.append(f)
+        
+        page_token = response.get("nextPageToken")
+        if not page_token:
+            break
+    
+    return files
+
+
+def download_file(drive_token_json, file_id, file_name, output_dir):
+    """Bir dosyayı Drive'dan indirir."""
+    service = _get_drive_service(drive_token_json)
+    
+    os.makedirs(output_dir, exist_ok=True)
+    output_path = os.path.join(output_dir, file_name)
+    
+    request = service.files().get_media(fileId=file_id)
+    fh = io.FileIO(output_path, mode="wb")
+    downloader = MediaIoBaseDownload(fh, request, chunksize=10 * 1024 * 1024)
+    
+    done = False
+    while not done:
+        status, done = downloader.next_chunk()
+    
+    fh.close()
+    return output_path
+
+
+def select_random_tracks(files, count):
+    """Listeden rastgele 'count' kadar dosya seçer."""
+    if len(files) <= count:
+        return files.copy()
+    return random.sample(files, count)
+
+
+def download_random_tracks(drive_token_json, folder_id, output_dir, track_count=20):
+    """
+    Drive klasöründen rastgele parçalar indirir.
+    track_count: indirilecek parça sayısı (1 saatlik video için 20-25 parça yeterli)
+    Returns: indirilen dosya yollarının listesi
+    """
+    print(f"📁 Drive klasöründen dosyalar listeleniyor...")
+    files = list_audio_files(drive_token_json, folder_id)
+    print(f"   Toplam {len(files)} müzik dosyası bulundu")
+    
+    if not files:
+        raise Exception(f"Klasör boş! folder_id: {folder_id}")
+    
+    selected = select_random_tracks(files, track_count)
+    print(f"   {len(selected)} parça rastgele seçildi")
+    
+    downloaded_paths = []
+    for i, f in enumerate(selected, 1):
+        print(f"   [{i}/{len(selected)}] İndiriliyor: {f['name']}")
+        path = download_file(drive_token_json, f["id"], f["name"], output_dir)
+        downloaded_paths.append(path)
+    
+    return downloaded_paths
