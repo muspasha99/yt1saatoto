@@ -1,6 +1,5 @@
 """
-FFmpeg ile final videoyu oluşturur.
-Arka plan videosunu loop'a alır, müzikle birleştirir.
+FFmpeg ile final videoyu oluşturur (optimize edilmiş 2-aşamalı yöntem).
 """
 import os
 import subprocess
@@ -8,7 +7,6 @@ import json
 
 
 def get_video_duration(file_path):
-    """Bir video dosyasının süresini saniye cinsinden döndürür."""
     cmd = [
         "ffprobe", "-v", "error",
         "-show_entries", "format=duration",
@@ -20,48 +18,55 @@ def get_video_duration(file_path):
     return float(data["format"]["duration"])
 
 
-def create_video(audio_path, background_video_path, output_path, target_duration_seconds):
+def _create_looped_background(background_video_path, target_duration, output_path):
     """
-    Ses + arka plan videosunu birleştirir.
-    
-    audio_path: 1 saatlik birleşik müzik dosyası
-    background_video_path: Pixabay'den indirilen kısa video (loop'a alınacak)
-    output_path: Final MP4 yolu
-    target_duration_seconds: Video süresi (audio'nun süresi)
-    
-    Returns: output_path
+    Aşama 1: Arka plan videosunu hedef süreye kadar loop'la (codec değişmeden, hızlı).
     """
-    print(f"🎬 Video oluşturuluyor...")
-    print(f"   Hedef süre: {target_duration_seconds/60:.1f} dakika")
+    print(f"   Aşama 1: Arka plan loop'lanıyor (~{target_duration/60:.1f} dk)...")
     
     bg_duration = get_video_duration(background_video_path)
-    print(f"   Arka plan video süresi: {bg_duration:.1f} saniye")
-    print(f"   Loop sayısı: ~{int(target_duration_seconds / bg_duration) + 1}")
+    loop_count = int(target_duration / bg_duration) + 2
     
-    # FFmpeg komutu:
-    # -stream_loop -1: arka plan videosunu sonsuz loop'a al
-    # -t: çıkış süresi (audio kadar)
-    # -c:v libx264: H.264 codec
-    # -preset veryfast: hızlı encoding (GitHub Actions süresini kısaltır)
-    # -crf 23: kalite/boyut dengesi
-    # -c:a aac -b:a 192k: ses codec
-    # -shortest: en kısa stream'e göre kes
-    # -pix_fmt yuv420p: maksimum uyumluluk
-    # -movflags +faststart: YouTube için optimize
+    # Concat dosyası oluştur (FFmpeg bu yolla çok hızlı loop yapar)
+    concat_list = output_path + ".txt"
+    with open(concat_list, "w") as f:
+        for _ in range(loop_count):
+            f.write(f"file '{os.path.abspath(background_video_path)}'\n")
     
     cmd = [
         "ffmpeg", "-y",
-        "-stream_loop", "-1",
-        "-i", background_video_path,
+        "-f", "concat",
+        "-safe", "0",
+        "-i", concat_list,
+        "-c", "copy",  # Codec değiştirme - çok hızlı
+        "-t", str(target_duration + 5),
+        output_path,
+    ]
+    
+    subprocess.run(cmd, check=True, capture_output=True)
+    
+    if os.path.exists(concat_list):
+        os.remove(concat_list)
+    
+    return output_path
+
+
+def _scale_and_combine(looped_bg, audio_path, output_path, target_duration):
+    """
+    Aşama 2: Loop'lanmış videoyu 1080p'ye scale et + ses ile birleştir.
+    """
+    print(f"   Aşama 2: Video encoding ve ses birleştirme...")
+    
+    cmd = [
+        "ffmpeg", "-y",
+        "-i", looped_bg,
         "-i", audio_path,
-        "-t", str(target_duration_seconds),
+        "-t", str(target_duration),
         "-c:v", "libx264",
-        "-preset", "veryfast",
-        "-crf", "23",
-        "-tune", "stillimage",
+        "-preset", "ultrafast",
+        "-crf", "26",
         "-vf", "scale=1920:1080:force_original_aspect_ratio=decrease,"
-               "pad=1920:1080:(ow-iw)/2:(oh-ih)/2,setsar=1",
-        "-r", "30",
+               "pad=1920:1080:(ow-iw)/2:(oh-ih)/2,setsar=1,fps=24",
         "-c:a", "aac",
         "-b:a", "192k",
         "-ar", "44100",
@@ -73,9 +78,6 @@ def create_video(audio_path, background_video_path, output_path, target_duration
         output_path,
     ]
     
-    print(f"   FFmpeg encoding başlıyor (birkaç dakika sürebilir)...")
-    
-    # Stderr'i yakala ama hata olursa göster
     process = subprocess.Popen(
         cmd,
         stdout=subprocess.DEVNULL,
@@ -83,23 +85,46 @@ def create_video(audio_path, background_video_path, output_path, target_duration
         universal_newlines=True,
     )
     
-    stderr_output = []
+    stderr_lines = []
+    last_shown = ""
     for line in process.stderr:
-        stderr_output.append(line)
-        # FFmpeg progress satırlarını yakala
+        stderr_lines.append(line)
         if "time=" in line:
-            # Sadece son progress'i göster
             time_part = line.split("time=")[1].split()[0]
-            print(f"      İşleniyor: {time_part}", end="\r")
+            if time_part != last_shown:
+                print(f"      Encoding: {time_part}", end="\r")
+                last_shown = time_part
     
     process.wait()
     
     if process.returncode != 0:
         print("\n⚠️  FFmpeg hata verdi:")
-        print("".join(stderr_output[-30:]))
+        print("".join(stderr_lines[-20:]))
         raise Exception(f"FFmpeg encoding başarısız (kod: {process.returncode})")
     
-    print()  # Progress satırından sonra newline
+    print()
+
+
+def create_video(audio_path, background_video_path, output_path, target_duration_seconds):
+    """
+    Ses + arka plan videosunu 2-aşamalı yöntemle hızlıca birleştirir.
+    """
+    print(f"🎬 Video oluşturuluyor (optimize edilmiş)...")
+    print(f"   Hedef süre: {target_duration_seconds/60:.1f} dakika")
+    
+    bg_duration = get_video_duration(background_video_path)
+    print(f"   Arka plan video: {bg_duration:.1f} saniye")
+    
+    # Aşama 1: Hızlı loop
+    looped_bg = output_path.replace(".mp4", "_looped.mp4")
+    _create_looped_background(background_video_path, target_duration_seconds, looped_bg)
+    
+    # Aşama 2: Scale + ses
+    _scale_and_combine(looped_bg, audio_path, output_path, target_duration_seconds)
+    
+    # Geçici dosyayı sil
+    if os.path.exists(looped_bg):
+        os.remove(looped_bg)
     
     if not os.path.exists(output_path):
         raise Exception("Çıkış dosyası oluşturulamadı")
