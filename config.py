@@ -101,8 +101,11 @@ CHANNELS = {
     },
 }
 
-# Video süresi (saniye)
-VIDEO_DURATION_SECONDS = 3600  # 1 saat
+# Video süresi - minimum 1 saat, doğal bitiş için son şarkı tamamlanır
+MIN_VIDEO_DURATION_SECONDS = 3600  # 60 dk minimum
+# Pipeline kuralı: süre 60 dk'yi geçtiğinde mevcut şarkı tamamlanır,
+# sonra video biter. Böylece her video doğal bir noktada sonlanır.
+# Tipik sonuç: 60-65 dk arası, her video farklı.
 
 # Geçici dosya klasörü
 TEMP_DIR = "/tmp/youtube-bot"
