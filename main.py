@@ -94,16 +94,11 @@ def run_pipeline(channel_code):
             bg_video,
         )
         
-        pixabay_handler.get_random_thumbnail_image(
-            pixabay_key,
-            channel["pixabay_query"],
-            bg_image,
-        )
         
         # 4. ADIM: Thumbnail oluştur
         print("\n[4/6] 🎨 Thumbnail oluşturuluyor...")
         thumbnail_creator.create_thumbnail(
-            bg_image,
+            bg_video,
             channel["thumbnail_text"],
             thumbnail,
             duration_text="1 HOUR",
