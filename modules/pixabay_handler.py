@@ -11,22 +11,32 @@ PIXABAY_VIDEO_API = "https://pixabay.com/api/videos/"
 PIXABAY_IMAGE_API = "https://pixabay.com/api/"
 
 
-def search_videos(api_key, query, per_page=30, min_width=1920):
-    """Pixabay'de video arar, HD videoları döndürür."""
+def search_videos(api_key, query, per_page=50, min_width=1920, min_height=1080):
+    """Pixabay'de gerçek 1080p+ video ara."""
     params = {
         "key": api_key,
         "q": query,
         "per_page": per_page,
-        "min_width": min_width,
+        "min_width": min_width,    # API tarafında filtre
+        "min_height": min_height,
         "video_type": "all",
         "safesearch": "true",
     }
-    
     response = requests.get(PIXABAY_VIDEO_API, params=params, timeout=30)
     response.raise_for_status()
     data = response.json()
+
+    # Client-side ek doğrulama: "large" versiyonu gerçekten 1080p mi?
+    hits = data.get("hits", [])
+    quality_hits = []
+    for v in hits:
+        large = v.get("videos", {}).get("large", {})
+        if (large.get("url") 
+            and large.get("width", 0) >= 1920 
+            and large.get("height", 0) >= 1080):
+            quality_hits.append(v)
     
-    return data.get("hits", [])
+    return quality_hits
 
 
 def download_video(video_url, output_path):
@@ -43,42 +53,29 @@ def download_video(video_url, output_path):
 
 
 def get_random_background_video(api_key, query, output_path):
-    """
-    Pixabay'den rastgele bir HD arka plan videosu indirir.
-    Returns: indirilen dosya yolu
-    """
-    print(f"🎬 Pixabay'de aranıyor: '{query}'")
+    """Pixabay'den 1080p+ HD arka plan videosu indirir."""
+    print(f"📽 Pixabay'de aranıyor (1080p+): '{query}'")
     
-    videos = search_videos(api_key, query, per_page=30)
+    videos = search_videos(api_key, query, per_page=50)
     
     if not videos:
-        # Daha basit bir aramayla tekrar dene
-        fallback_query = query.split()[0]  # ilk kelime
-        print(f"   Sonuç yok, '{fallback_query}' ile tekrar deneniyor...")
-        videos = search_videos(api_key, fallback_query, per_page=30)
+        fallback_query = query.split()[0]
+        print(f"   1080p+ sonuç yok, '{fallback_query}' ile deneniyor...")
+        videos = search_videos(api_key, fallback_query, per_page=50)
     
     if not videos:
-        raise Exception(f"Pixabay'de '{query}' için video bulunamadı")
+        raise Exception(f"Pixabay'de '{query}' için 1080p+ video bulunamadı")
     
-    print(f"   {len(videos)} video bulundu, rastgele seçiliyor")
+    print(f"   {len(videos)} HD (1080p+) video bulundu, rastgele seçiliyor")
     
-    # Rastgele seç
     selected = random.choice(videos)
     
-    # En yüksek kaliteli URL'yi al (large > medium > small)
-    video_files = selected.get("videos", {})
-    download_url = None
-    
-    for quality in ["large", "medium", "small", "tiny"]:
-        if quality in video_files and video_files[quality].get("url"):
-            download_url = video_files[quality]["url"]
-            width = video_files[quality].get("width", 0)
-            height = video_files[quality].get("height", 0)
-            print(f"   Seçilen kalite: {quality} ({width}x{height})")
-            break
-    
-    if not download_url:
-        raise Exception("İndirilebilir video URL'si bulunamadı")
+    # Direkt large kullan, alt kalite fallback YOK
+    large = selected["videos"]["large"]
+    download_url = large["url"]
+    width = large.get("width", 0)
+    height = large.get("height", 0)
+    print(f"   Seçilen kaynak: {width}x{height}")
     
     print(f"   Video indiriliyor...")
     download_video(download_url, output_path)
