@@ -12,13 +12,13 @@ on:
   # Cron schedule (UTC saatinde çalışır, TR = UTC+3)
   schedule:
     # Sabah Batch 02:00 UTC = 05:00 TR
-    - cron: "0 2 * * *"   # vault, zen, pets
+    #- cron: "0 2 * * *"   # vault, zen, pets
 
     # Öğle Batch 09:00 UTC = 12:00 TR
-    - cron: "0 9 * * *"   # coding, beach, chakra
+    #- cron: "0 9 * * *"   # coding, beach, chakra
 
     # Akşam Batch 14:00 UTC = 17:00 TR
-    - cron: "0 14 * * *"  # summer, breathe
+    #- cron: "0 14 * * *"  # summer, breathe
 
 jobs:
   run-pipeline:
