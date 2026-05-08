@@ -1,7 +1,6 @@
 name: YouTube Pipeline
 
 on:
-  # Manuel tetikleme (test için)
   workflow_dispatch:
     inputs:
       channel:
@@ -9,28 +8,17 @@ on:
         required: true
         default: "coding"
 
-  # Cron schedule (UTC saatinde çalışır, TR = UTC+3)
- # schedule:
-    # Sabah Batch 02:00 UTC = 05:00 TR
-    #- cron: "0 2 * * *"   # vault, zen, pets
-
-    # Öğle Batch 09:00 UTC = 12:00 TR
-    #- cron: "0 9 * * *"   # coding, beach, chakra
-
-    # Akşam Batch 14:00 UTC = 17:00 TR
-    #- cron: "0 14 * * *"  # summer, breathe
-
 jobs:
   run-pipeline:
     runs-on: ubuntu-latest
     timeout-minutes: 60
-    
+
     strategy:
-  fail-fast: false
-  max-parallel: 1
-  matrix:
-    channel: ${{ fromJSON(format('["{0}"]', inputs.channel)) }}
-    
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        channel: ${{ fromJSON(format('["{0}"]', inputs.channel)) }}
+
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -55,14 +43,11 @@ jobs:
       - name: Run pipeline for channel ${{ matrix.channel }}
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-          PIXABAY_API_KEY: ${{ secrets.PIXABAY_API_KEY }}
-
           # Drive tokens (4 hesap)
           DRIVE_TOKEN_HESAP98: ${{ secrets.DRIVE_TOKEN_HESAP98 }}
           DRIVE_TOKEN_HESAP97: ${{ secrets.DRIVE_TOKEN_HESAP97 }}
           DRIVE_TOKEN_HESAP99: ${{ secrets.DRIVE_TOKEN_HESAP99 }}
           DRIVE_TOKEN_HESAP87: ${{ secrets.DRIVE_TOKEN_HESAP87 }}
-
           # YouTube tokens (8 kanal)
           YT_TOKEN_CODING: ${{ secrets.YT_TOKEN_CODING }}
           YT_TOKEN_ZEN: ${{ secrets.YT_TOKEN_ZEN }}
@@ -72,6 +57,5 @@ jobs:
           YT_TOKEN_SUMMER: ${{ secrets.YT_TOKEN_SUMMER }}
           YT_TOKEN_PETS: ${{ secrets.YT_TOKEN_PETS }}
           YT_TOKEN_BREATHE: ${{ secrets.YT_TOKEN_BREATHE }}
-        
         run: |
           python main.py ${{ matrix.channel }}
