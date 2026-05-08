@@ -12,7 +12,6 @@ from datetime import datetime
 from config import CHANNELS, CHANNEL_PROMPTS, MIN_VIDEO_DURATION_SECONDS, TEMP_DIR
 from modules import drive_handler
 from modules import audio_processor
-from modules import pixabay_handler
 from modules import thumbnail_creator
 from modules import gemini_handler
 from modules import video_creator
@@ -57,7 +56,6 @@ def run_pipeline(channel_code):
     try:
         # API key'leri ve token'ları çevre değişkenlerinden al
         gemini_key = _get_env("GEMINI_API_KEY")
-        pixabay_key = _get_env("PIXABAY_API_KEY")
         
         drive_account = channel["drive_account"]
         yt_account = channel["youtube_account"]
@@ -86,32 +84,24 @@ def run_pipeline(channel_code):
         # Audio süresini al (video bu kadar olacak)
         audio_duration = audio_processor.get_audio_duration(audio_output)
         
-        # 3. ADIM: Arka plan video ve thumbnail resmi indir
-print("\n[3/6] 🎞 Arka plan içerikleri indiriliyor...")
+        # 3. ADIM: Drive'dan arka plan klibi indir + thumbnail frame'i çıkar
+print("\n[3/6] 🎞 Arka plan klibi alınıyor...")
 
-# Background video: Drive'dan (varsa) veya Pixabay'den (fallback)
 clips_folder_id = channel.get("clips_folder_id", "")
-if clips_folder_id:
-    print(f"   📂 Drive'dan klip kullanılıyor")
-    drive_handler.download_random_video(
-        drive_token,
-        clips_folder_id,
-        bg_video,
-    )
-else:
-    print(f"   🌐 Pixabay'den klip kullanılıyor (Drive klipleri henüz yok)")
-    pixabay_handler.get_random_background_video(
-        pixabay_key,
-        channel["pixabay_query"],
-        bg_video,
+if not clips_folder_id:
+    raise Exception(
+        f"❌ Kanal '{channel_code}' için clips_folder_id tanımlı değil. "
+        f"config.py'da bu alanı doldur veya bu kanalı cron schedule'dan çıkar."
     )
 
-# Thumbnail için Pixabay (resim, klip değil — Drive'da resim klasörü yok)
-pixabay_handler.get_random_thumbnail_image(
-    pixabay_key,
-    channel["pixabay_query"],
-    bg_image,
+drive_handler.download_random_video(
+    drive_token,
+    clips_folder_id,
+    bg_video,
 )
+
+# Thumbnail için video'nun 1. saniyesinden frame al
+video_creator.extract_thumbnail_frame(bg_video, bg_image, time_offset=1.0)
         
         
         # 4. ADIM: Thumbnail oluştur
