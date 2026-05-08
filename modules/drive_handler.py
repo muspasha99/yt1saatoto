@@ -103,3 +103,68 @@ def download_random_tracks(drive_token_json, folder_id, output_dir, track_count=
         downloaded_paths.append(path)
     
     return downloaded_paths
+
+def list_video_files(drive_token_json, folder_id):
+    """Drive klasöründen video dosyalarını listeler."""
+    service = _get_drive_service(drive_token_json)
+    
+    files = []
+    page_token = None
+    
+    while True:
+        response = service.files().list(
+            q=f"'{folder_id}' in parents and trashed = false",
+            spaces="drive",
+            fields="nextPageToken, files(id, name, size)",
+            pageSize=1000,
+            pageToken=page_token,
+        ).execute()
+        
+        for f in response.get("files", []):
+            if f["name"].lower().endswith((".mp4", ".mov", ".webm", ".mkv")):
+                files.append(f)
+        
+        page_token = response.get("nextPageToken")
+        if not page_token:
+            break
+    
+    return files
+
+
+def download_random_video(drive_token_json, folder_id, output_path):
+    """
+    Drive klasöründen rastgele bir video indirir.
+    output_path: tam dosya yolu (örn. /tmp/youtube-bot/coding/background.mp4)
+    Returns: indirilen dosya yolu
+    """
+    print(f"📂 Drive'dan klip listesi alınıyor...")
+    files = list_video_files(drive_token_json, folder_id)
+    print(f"   Toplam {len(files)} klip bulundu")
+    
+    if not files:
+        raise Exception("Drive klasöründe klip bulunamadı")
+    
+    # Rastgele bir tane seç
+    selected = random.choice(files)
+    file_size_mb = int(selected.get("size", 0)) / (1024 * 1024)
+    print(f"   Seçilen: {selected['name']} ({file_size_mb:.1f} MB)")
+    
+    # Output dizinini garanti et
+    output_dir = os.path.dirname(output_path)
+    if output_dir:
+        os.makedirs(output_dir, exist_ok=True)
+    
+    # Drive'dan indir
+    service = _get_drive_service(drive_token_json)
+    request = service.files().get_media(fileId=selected["id"])
+    fh = io.FileIO(output_path, mode="wb")
+    downloader = MediaIoBaseDownload(fh, request, chunksize=10 * 1024 * 1024)
+    
+    done = False
+    while not done:
+        status, done = downloader.next_chunk()
+    
+    fh.close()
+    
+    print(f"✅ Klip indirildi: {output_path}")
+    return output_path
