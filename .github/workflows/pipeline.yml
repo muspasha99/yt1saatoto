@@ -10,7 +10,7 @@ on:
         default: "coding"
 
   # Cron schedule (UTC saatinde çalışır, TR = UTC+3)
-  schedule:
+ # schedule:
     # Sabah Batch 02:00 UTC = 05:00 TR
     #- cron: "0 2 * * *"   # vault, zen, pets
 
@@ -26,10 +26,10 @@ jobs:
     timeout-minutes: 60
     
     strategy:
-      fail-fast: false
-      max-parallel: 2
-      matrix:
-        channel: ${{ fromJSON(github.event_name == 'workflow_dispatch' && format('["{0}"]', inputs.channel) || (github.event.schedule == '0 2 * * *' && '["vault", "zen", "pets"]' || (github.event.schedule == '0 9 * * *' && '["coding", "beach", "chakra"]' || '["summer", "breathe"]'))) }}
+  fail-fast: false
+  max-parallel: 1
+  matrix:
+    channel: ${{ fromJSON(format('["{0}"]', inputs.channel)) }}
     
     steps:
       - name: Checkout repo
