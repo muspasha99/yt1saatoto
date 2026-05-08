@@ -85,3 +85,26 @@ def create_video(audio_path, background_video_path, output_path, target_duration
     print(f"   Boyut: {file_size_mb:.1f} MB")
 
     return output_path
+
+def extract_thumbnail_frame(video_path, output_path, time_offset=1.0):
+    """
+    Videodan tek bir frame çıkarır (thumbnail arka planı için).
+    time_offset: hangi saniyeden frame alınacak (default 1.0)
+    """
+    print(f"🖼  Video'dan thumbnail frame'i çıkarılıyor...")
+    
+    cmd = [
+        "ffmpeg", "-y",
+        "-ss", str(time_offset),       # Hızlı seek
+        "-i", video_path,
+        "-vframes", "1",                # Tek frame
+        "-q:v", "2",                    # Yüksek kalite JPEG (1-31, düşük=iyi)
+        output_path,
+    ]
+    subprocess.run(cmd, check=True, capture_output=True)
+    
+    if not os.path.exists(output_path):
+        raise Exception("Frame çıkarılamadı")
+    
+    print(f"✅ Frame hazır: {output_path}")
+    return output_path
