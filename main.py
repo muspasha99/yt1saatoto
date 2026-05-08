@@ -86,13 +86,32 @@ def run_pipeline(channel_code):
         # Audio süresini al (video bu kadar olacak)
         audio_duration = audio_processor.get_audio_duration(audio_output)
         
-        # 3. ADIM: Pixabay'den arka plan video ve thumbnail resmi indir
-        print("\n[3/6] 🎬 Arka plan içerikleri indiriliyor...")
-        pixabay_handler.get_random_background_video(
-            pixabay_key,
-            channel["pixabay_query"],
-            bg_video,
-        )
+        # 3. ADIM: Arka plan video ve thumbnail resmi indir
+print("\n[3/6] 🎞 Arka plan içerikleri indiriliyor...")
+
+# Background video: Drive'dan (varsa) veya Pixabay'den (fallback)
+clips_folder_id = channel.get("clips_folder_id", "")
+if clips_folder_id:
+    print(f"   📂 Drive'dan klip kullanılıyor")
+    drive_handler.download_random_video(
+        drive_token,
+        clips_folder_id,
+        bg_video,
+    )
+else:
+    print(f"   🌐 Pixabay'den klip kullanılıyor (Drive klipleri henüz yok)")
+    pixabay_handler.get_random_background_video(
+        pixabay_key,
+        channel["pixabay_query"],
+        bg_video,
+    )
+
+# Thumbnail için Pixabay (resim, klip değil — Drive'da resim klasörü yok)
+pixabay_handler.get_random_thumbnail_image(
+    pixabay_key,
+    channel["pixabay_query"],
+    bg_image,
+)
         
         
         # 4. ADIM: Thumbnail oluştur
