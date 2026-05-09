@@ -27,9 +27,7 @@ def _get_env(key):
 
 
 def run_pipeline(channel_code):
-    """
-    Bir kanal için tüm pipeline'ı çalıştırır.
-    """
+    """Bir kanal için tüm pipeline'ı çalıştırır."""
     if channel_code not in CHANNELS:
         raise Exception(f"Bilinmeyen kanal: {channel_code}")
     
@@ -49,7 +47,6 @@ def run_pipeline(channel_code):
     
     audio_output = os.path.join(work_dir, "audio_full.wav")
     bg_video = os.path.join(work_dir, "background.mp4")
-    bg_image = os.path.join(work_dir, "thumb_bg.jpg")
     thumbnail = os.path.join(work_dir, "thumbnail.jpg")
     final_video = os.path.join(work_dir, "final.mp4")
     
@@ -58,8 +55,6 @@ def run_pipeline(channel_code):
         gemini_key = _get_env("GEMINI_API_KEY")
         
         drive_account = channel["drive_account"]
-        yt_account = channel["youtube_account"]
-        
         drive_token = _get_env(f"DRIVE_TOKEN_{drive_account.upper()}")
         yt_token = _get_env(f"YT_TOKEN_{channel_code.upper()}")
         
@@ -69,7 +64,7 @@ def run_pipeline(channel_code):
             drive_token,
             channel["drive_folder_id"],
             music_dir,
-            track_count=25,  # 25 parça indir, ihtiyaç olduğu kadar kullanılacak
+            track_count=25,
         )
         
         # 2. ADIM: Müziği crossfade ile birleştir
@@ -80,45 +75,29 @@ def run_pipeline(channel_code):
             min_duration_seconds=MIN_VIDEO_DURATION_SECONDS,
             crossfade_seconds=channel["crossfade_seconds"],
         )
-        
-        # Audio süresini al (video bu kadar olacak)
         audio_duration = audio_processor.get_audio_duration(audio_output)
         
-        # 3. ADIM: Drive'dan arka plan klibi indir + thumbnail frame'i çıkar
-print("\n[3/6] 🎞 Arka plan klibi alınıyor...")
-
-clips_folder_id = channel.get("clips_folder_id", "")
-if not clips_folder_id:
-    raise Exception(
-        f"❌ Kanal '{channel_code}' için clips_folder_id tanımlı değil. "
-        f"config.py'da bu alanı doldur veya bu kanalı cron schedule'dan çıkar."
-    )
-
-drive_handler.download_random_video(
-    drive_token,
-    clips_folder_id,
-    bg_video,
-)
-
-# Thumbnail için video'nun 1. saniyesinden frame al
-video_creator.extract_thumbnail_frame(bg_video, bg_image, time_offset=1.0)
-        
-        
-        # 4. ADIM: Thumbnail oluştur
-        print("\n[4/6] 🎨 Thumbnail oluşturuluyor...")
-        thumbnail_creator.create_thumbnail(
+        # 3. ADIM: Drive'dan arka plan klibi indir
+        print("\n[3/6] 🎞 Arka plan klibi alınıyor...")
+        clips_folder_id = channel.get("clips_folder_id", "")
+        if not clips_folder_id:
+            raise Exception(
+                f"❌ Kanal '{channel_code}' için clips_folder_id tanımlı değil. "
+                f"config.py'da bu alanı doldur."
+            )
+        drive_handler.download_random_video(
+            drive_token,
+            clips_folder_id,
             bg_video,
-            channel["thumbnail_text"],
-            thumbnail,
         )
         
-        # 5. ADIM: Gemini ile metadata + Final videoyu oluştur (paralel olabilir ama sıralı yapıyoruz)
+        # 4. ADIM: Thumbnail oluştur (videodan rastgele kare, yazısız)
+        print("\n[4/6] 🎨 Thumbnail oluşturuluyor...")
+        thumbnail_creator.create_thumbnail(bg_video, thumbnail)
+        
+        # 5. ADIM: Gemini ile metadata + Final videoyu oluştur
         print("\n[5/6] 🤖 Metadata üretiliyor + 🎥 Video birleştiriliyor...")
-        metadata = gemini_handler.generate_metadata(
-            gemini_key,
-            channel,
-            prompts,
-        )
+        metadata = gemini_handler.generate_metadata(gemini_key, channel, prompts)
         
         video_creator.create_video(
             audio_output,
@@ -153,7 +132,7 @@ video_creator.extract_thumbnail_frame(bg_video, bg_image, time_offset=1.0)
         raise
     
     finally:
-        # Geçici dosyaları temizle (GitHub Actions storage için)
+        # Geçici dosyaları temizle
         try:
             if os.path.exists(work_dir):
                 shutil.rmtree(work_dir)
