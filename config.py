@@ -11,112 +11,94 @@ CHANNELS = {
         "drive_account": "hesap98",
         "youtube_account": "hesap98",
         "concept": "lofi hip hop study music",
-        "pixabay_query": "rainy night window cozy",
         "crossfade_seconds": 4,
-        "thumbnail_text": "LOFI STUDY",
         "video_keywords": ["lofi", "study music", "chill beats", "coding music", "focus music"],
     },
     "zen": {
         "display_name": "Zen Yoga Music",
         "channel_id": "UCwCgjS5hnrIcnbgDTT6w59Q",
         "drive_folder_id": "1bk6DFdWy0s_WCoIMBN_wfotFeBpTM9_2",
-        "clips_folder_id": "",
+        "clips_folder_id": "12bTsKRMLJxQrF0XpvXL7gBpc8q3QJZ7d",
         "drive_account": "hesap98",
         "youtube_account": "hesap98",
         "concept": "zen meditation tibetan ambient",
-        "pixabay_query": "zen garden japanese peaceful",
         "crossfade_seconds": 8,
-        "thumbnail_text": "ZEN YOGA",
         "video_keywords": ["yoga music", "meditation", "zen", "tibetan", "peaceful music"],
     },
     "vault": {
         "display_name": "Millionaire Vault",
         "channel_id": "UCpMMN35Cp_DBCyoVJY1R3tw",
         "drive_folder_id": "1ysfqX-UsbTOqX8jE9AZJ1HEb0NNWMSOM",
-        "clips_folder_id": "",
+        "clips_folder_id": "1CJWOvaDl4W-RH0sQBPJXvQ2kgi_iBwZT",
         "drive_account": "hesap97",
         "youtube_account": "hesap97",
         "concept": "dark cinematic trap motivational",
-        "pixabay_query": "luxury city night skyline",
         "crossfade_seconds": 3,
-        "thumbnail_text": "MILLIONAIRE",
         "video_keywords": ["motivation music", "dark trap", "sigma", "grindset", "hustle"],
     },
     "chakra": {
         "display_name": "Chakra Healing Meditation",
         "channel_id": "UCVnJG9DB4jYpv4PMSJvkuIA",
         "drive_folder_id": "1P7O2FBPApSXNjn3JjWzi_GlFDdAoDhYq",
-        "clips_folder_id": "",
+        "clips_folder_id": "1y22dntgRRAtzwt5TP0Ag-w9knmlrmL2n",
         "drive_account": "hesap97",
         "youtube_account": "hesap97",
         "concept": "chakra healing solfeggio frequency",
-        "pixabay_query": "spiritual energy crystal mandala",
         "crossfade_seconds": 10,
-        "thumbnail_text": "CHAKRA HEALING",
         "video_keywords": ["chakra healing", "432hz", "528hz", "meditation music", "sound healing"],
     },
     "beach": {
         "display_name": "Beach Club Beats",
         "channel_id": "UC9AcTTuosbZ17P0F0tfMg3g",
         "drive_folder_id": "1S0f5ojyNWHSb8K7RGkwBrcn1vxn1Jnco",
-        "clips_folder_id": "",
+        "clips_folder_id": "1c11dVr0S_cEK5hlxIIQlf_fzor03Mq0O",
         "drive_account": "hesap99",
         "youtube_account": "hesap99",
         "concept": "tropical house beach club",
-        "pixabay_query": "tropical beach palm sunset",
         "crossfade_seconds": 4,
-        "thumbnail_text": "BEACH CLUB",
         "video_keywords": ["beach music", "tropical house", "summer vibes", "ibiza", "deep house"],
     },
     "summer": {
         "display_name": "Summer House Music",
         "channel_id": "UC1w2S1apy3UK-pRaIEJBavA",
         "drive_folder_id": "15jR06ZQXUbUb3uk08BHEhwfsLrpr2yEh",
-        "clips_folder_id": "",
+        "clips_folder_id": "1LiywuL07wnWcXM-C0vIwixnV5ztFfBsz",
         "drive_account": "hesap99",
         "youtube_account": "hesap99",
         "concept": "deep house summer mediterranean",
-        "pixabay_query": "mediterranean sunset coast",
         "crossfade_seconds": 4,
-        "thumbnail_text": "SUMMER HOUSE",
         "video_keywords": ["deep house", "summer house", "mediterranean", "lounge", "chillout"],
     },
     "pets": {
         "display_name": "Relaxing Dogs and Cats",
         "channel_id": "UCyYCN2hqzJBSA9XNes1Shig",
         "drive_folder_id": "1eY8y0RDewp0lA5fjLuDuvZErOxUnUIW-",
-        "clips_folder_id": "",
+        "clips_folder_id": "1r5YJxeY2s81BZJ-dAqbe8Y-0hgCFh_jf",
         "drive_account": "hesap87",
         "youtube_account": "hesap87",
         "concept": "soft acoustic for pets calm",
-        "pixabay_query": "cozy home cat dog window",
         "crossfade_seconds": 6,
-        "thumbnail_text": "PET RELAX",
         "video_keywords": ["dog music", "cat music", "pet relaxation", "calm pets", "anxiety music"],
     },
     "breathe": {
         "display_name": "Breathe and Chill",
         "channel_id": "UCqBZrQuzsfp8_sTRu97T3VA",
         "drive_folder_id": "1ivZr7goxS7VJpMwyLqwCkP1hcezievW-",
-        "clips_folder_id": "",
+        "clips_folder_id": "17pRNXvwn2NXYHf9zX-g6fxRrwpSesO_N",
         "drive_account": "hesap87",
         "youtube_account": "hesap87",
         "concept": "breathing meditation 4-7-8",
-        "pixabay_query": "calm ocean waves gentle",
         "crossfade_seconds": 8,
-        "thumbnail_text": "BREATHE",
         "video_keywords": ["breathing exercise", "4-7-8 breathing", "meditation", "calm music", "anxiety relief"],
     },
 }
 
 # Video süresi - minimum 1 saat, doğal bitiş için son şarkı tamamlanır
 MIN_VIDEO_DURATION_SECONDS = 3600  # 60 dk minimum
-# Pipeline kuralı: süre 60 dk'yi geçtiğinde mevcut şarkı tamamlanır,
-# sonra video biter. Böylece her video doğal bir noktada sonlanır.
-# Tipik sonuç: 60-65 dk arası, her video farklı.
 
 # Geçici dosya klasörü
 TEMP_DIR = "/tmp/youtube-bot"
+
 # Kanal bazlı başlık ve açıklama stilleri (Gemini için)
 CHANNEL_PROMPTS = {
     "coding": {
@@ -128,7 +110,7 @@ CHANNEL_PROMPTS = {
         "description_style": "Spiritual and grounding. Mention yoga, meditation, mindfulness, healing. 4-5 sentences with peaceful tone."
     },
     "vault": {
-        "title_style": "Aggressive, short, hard-hitting, 30-50 characters. Minimal emojis (🔥💰⚡). Examples: ' The grind never stops 🔥', 'millionaire mindset | sigma grindset', 'the day that make you different '",
+        "title_style": "Aggressive, short, hard-hitting, 30-50 characters. Minimal emojis (🔥💰⚡). Examples: 'The grind never stops 🔥', 'millionaire mindset | sigma grindset', 'the day that make you different'",
         "description_style": "Short, punchy, motivational. Sigma/grindset language. 2-3 short sentences. Direct and intense."
     },
     "chakra": {
