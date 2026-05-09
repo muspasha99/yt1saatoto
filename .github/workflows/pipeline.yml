@@ -7,6 +7,13 @@ on:
         description: "Kanal kodu (coding, zen, vault, chakra, beach, summer, pets, breathe)"
         required: true
         default: "coding"
+  schedule:
+    # Sabah Batch 02:00 UTC = 05:00 TR
+    - cron: "0 2 * * *"   # vault, zen, pets
+    # Öğle Batch 09:00 UTC = 12:00 TR
+    - cron: "0 9 * * *"   # coding, beach, chakra
+    # Akşam Batch 14:00 UTC = 17:00 TR
+    - cron: "0 14 * * *"  # summer, breathe
 
 jobs:
   run-pipeline:
@@ -17,7 +24,7 @@ jobs:
       fail-fast: false
       max-parallel: 1
       matrix:
-        channel: ${{ fromJSON(format('["{0}"]', inputs.channel)) }}
+        channel: ${{ fromJSON(github.event_name == 'workflow_dispatch' && format('["{0}"]', inputs.channel) || (github.event.schedule == '0 2 * * *' && '["vault", "zen", "pets"]' || (github.event.schedule == '0 9 * * *' && '["coding", "beach", "chakra"]' || '["summer", "breathe"]'))) }}
 
     steps:
       - name: Checkout repo
