@@ -26,10 +26,10 @@ def create_video(audio_path, background_video_path, output_path, target_duration
     """
     print(f"📽 Video oluşturuluyor (1080p, kalite öncelikli)...")
     print(f"   Hedef süre: {target_duration_seconds/60:.1f} dakika")
-
+    
     bg_duration = get_video_duration(background_video_path)
     print(f"   Arka plan video: {bg_duration:.1f} saniye")
-
+    
     cmd = [
         "ffmpeg", "-y",
         "-stream_loop", "-1",
@@ -52,12 +52,12 @@ def create_video(audio_path, background_video_path, output_path, target_duration
         "-map", "1:a:0",
         output_path,
     ]
-
+    
     process = subprocess.Popen(
         cmd, stderr=subprocess.PIPE, stdout=subprocess.DEVNULL,
         universal_newlines=True, bufsize=1
     )
-
+    
     stderr_lines = []
     last_shown = ""
     for line in process.stderr:
@@ -67,44 +67,21 @@ def create_video(audio_path, background_video_path, output_path, target_duration
             if time_part != last_shown:
                 print(f"   Encoding: {time_part}", end="\r")
                 last_shown = time_part
-
+    
     process.wait()
-
+    
     if process.returncode != 0:
         print("\n⚠ FFmpeg hata verdi:")
         print("".join(stderr_lines[-20:]))
         raise Exception(f"FFmpeg encoding başarısız (kod: {process.returncode})")
-
+    
     print()
-
+    
     file_size_mb = os.path.getsize(output_path) / (1024 * 1024)
     actual_duration = get_video_duration(output_path)
-
+    
     print(f"✅ Video hazır:")
     print(f"   Süre: {actual_duration/60:.2f} dakika")
     print(f"   Boyut: {file_size_mb:.1f} MB")
-
-    return output_path
-
-def extract_thumbnail_frame(video_path, output_path, time_offset=1.0):
-    """
-    Videodan tek bir frame çıkarır (thumbnail arka planı için).
-    time_offset: hangi saniyeden frame alınacak (default 1.0)
-    """
-    print(f"🖼  Video'dan thumbnail frame'i çıkarılıyor...")
     
-    cmd = [
-        "ffmpeg", "-y",
-        "-ss", str(time_offset),       # Hızlı seek
-        "-i", video_path,
-        "-vframes", "1",                # Tek frame
-        "-q:v", "2",                    # Yüksek kalite JPEG (1-31, düşük=iyi)
-        output_path,
-    ]
-    subprocess.run(cmd, check=True, capture_output=True)
-    
-    if not os.path.exists(output_path):
-        raise Exception("Frame çıkarılamadı")
-    
-    print(f"✅ Frame hazır: {output_path}")
     return output_path
