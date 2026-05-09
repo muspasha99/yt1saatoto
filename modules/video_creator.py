@@ -21,10 +21,9 @@ def get_video_duration(file_path):
 
 def create_video(audio_path, background_video_path, output_path, target_duration_seconds):
     """
-    Tek aşamada 1080p video oluştur.
-    Loop + scale + audio + encode → tek FFmpeg pass.
+    Tek aşamada 1080p video oluştur (hız öncelikli).
     """
-    print(f"📽 Video oluşturuluyor (1080p, kalite öncelikli)...")
+    print(f"📽 Video oluşturuluyor (1080p, hızlı)...")
     print(f"   Hedef süre: {target_duration_seconds/60:.1f} dakika")
     
     bg_duration = get_video_duration(background_video_path)
@@ -37,11 +36,12 @@ def create_video(audio_path, background_video_path, output_path, target_duration
         "-i", audio_path,
         "-t", str(target_duration_seconds),
         "-c:v", "libx264",
-        "-preset", "veryfast",
-        "-crf", "21",
+        "-preset", "superfast",          # veryfast → superfast (~%70 hız artışı)
+        "-crf", "22",                     # 21 → 22 (gözle fark yok)
         "-vf", "scale=1920:1080:force_original_aspect_ratio=decrease,"
                "pad=1920:1080:(ow-iw)/2:(oh-ih)/2,setsar=1",
-        "-r", "30",
+        "-r", "24",                       # 30 → 24 fps (cinematic, %20 az iş)
+        "-threads", "0",                  # Tüm CPU çekirdekleri
         "-c:a", "aac",
         "-b:a", "192k",
         "-ar", "44100",
