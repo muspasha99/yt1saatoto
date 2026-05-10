@@ -13,6 +13,23 @@ CHANNELS = {
         "concept": "lofi hip hop study music",
         "crossfade_seconds": 4,
         "video_keywords": ["lofi", "study music", "chill beats", "coding music", "focus music"],
+        "seo_keywords": [
+            "late night coding session music",
+            "rainy lofi cafe ambience",
+            "lofi for programmers focus",
+            "1 hour coding music no ads",
+            "midnight study lofi mix",
+            "deep work lofi beats",
+            "cozy coffee shop lofi",
+            "study with me lofi rain",
+            "lofi for software engineers",
+            "lofi study session 2026",
+            "focus music for coding deep work",
+            "chill beats for late night work",
+            "lofi hip hop study beats playlist",
+            "coffee shop ambience study music",
+            "night owl coding lofi playlist",
+        ],
     },
     "zen": {
         "display_name": "Zen Yoga Music",
@@ -24,6 +41,23 @@ CHANNELS = {
         "concept": "zen meditation tibetan ambient",
         "crossfade_seconds": 8,
         "video_keywords": ["yoga music", "meditation", "zen", "tibetan", "peaceful music"],
+        "seo_keywords": [
+            "tibetan singing bowls 1 hour deep healing",
+            "morning yoga flow gentle music",
+            "zen meditation rain forest sounds",
+            "yoga nidra deep sleep music",
+            "balance meditation music inner peace",
+            "shamanic drumming meditation 1 hour",
+            "japanese zen garden ambience music",
+            "hatha yoga calming background music",
+            "mindfulness meditation 1 hour relaxing",
+            "forest bathing meditation nature sounds",
+            "bedtime yoga relaxation gentle music",
+            "stress relief meditation tibetan bowls",
+            "deep meditation music for spiritual healing",
+            "kundalini yoga awakening music",
+            "calming yoga music for beginners",
+        ],
     },
     "vault": {
         "display_name": "Millionaire Vault",
@@ -35,6 +69,23 @@ CHANNELS = {
         "concept": "dark cinematic trap motivational",
         "crossfade_seconds": 3,
         "video_keywords": ["motivation music", "dark trap", "sigma", "grindset", "hustle"],
+        "seo_keywords": [
+            "dark trap motivation 1 hour",
+            "sigma male grindset music",
+            "alpha workout dark beats playlist",
+            "millionaire mindset hustle music",
+            "lock in mode dark phonk",
+            "late night gym motivation trap",
+            "ceo morning motivation dark beats",
+            "drive home dark trap mix",
+            "3 am hustler motivation music",
+            "no excuses workout music dark",
+            "money mindset dark beats",
+            "sigma rules motivation playlist",
+            "dark phonk gym workout 2026",
+            "high value man motivation music",
+            "boss energy dark trap mix",
+        ],
     },
     "chakra": {
         "display_name": "Chakra Healing Meditation",
@@ -46,6 +97,23 @@ CHANNELS = {
         "concept": "chakra healing solfeggio frequency",
         "crossfade_seconds": 10,
         "video_keywords": ["chakra healing", "432hz", "528hz", "meditation music", "sound healing"],
+        "seo_keywords": [
+            "528 Hz love frequency heart chakra",
+            "432 Hz deep healing meditation music",
+            "741 Hz throat chakra cleanse meditation",
+            "396 Hz root chakra grounding music",
+            "639 Hz heart chakra love attraction",
+            "852 Hz third eye awakening meditation",
+            "963 Hz crown chakra divine connection",
+            "417 Hz solar plexus power chakra",
+            "all 7 chakras balance meditation 1 hour",
+            "chakra clearing negative energy removal",
+            "solfeggio frequency anxiety relief",
+            "chakra healing music sleep meditation",
+            "chakra alignment morning meditation",
+            "balancing chakras for beginners guided",
+            "deep chakra cleansing solfeggio frequencies",
+        ],
     },
     "beach": {
         "display_name": "Beach Club Beats",
@@ -57,6 +125,23 @@ CHANNELS = {
         "concept": "tropical house beach club",
         "crossfade_seconds": 4,
         "video_keywords": ["beach music", "tropical house", "summer vibes", "ibiza", "deep house"],
+        "seo_keywords": [
+            "ibiza pool party house mix 2026",
+            "tropical house summer beach club",
+            "miami beach deep house mix",
+            "boat party house music summer",
+            "vacation vibes tropical mix 2026",
+            "poolside house beats afternoon",
+            "sunset beach club mix tropical",
+            "tropical deep house lounge",
+            "caribbean beach house mix",
+            "tulum beach club beats sunset",
+            "summer beach house party 2026",
+            "tropical poolside chill house mix",
+            "beach club afternoon house mix",
+            "balearic beach house ibiza vibes",
+            "tropical house workout summer mix",
+        ],
     },
     "summer": {
         "display_name": "Summer House Music",
@@ -68,6 +153,23 @@ CHANNELS = {
         "concept": "deep house summer mediterranean",
         "crossfade_seconds": 4,
         "video_keywords": ["deep house", "summer house", "mediterranean", "lounge", "chillout"],
+        "seo_keywords": [
+            "rooftop sunset deep house mix",
+            "mediterranean lounge deep house",
+            "santorini sunset house music",
+            "italian villa chillout vibes",
+            "yacht deep house sunset mix",
+            "mykonos lounge beats sunset",
+            "amalfi coast deep house chill",
+            "golden hour rooftop deep house mix",
+            "ibiza sunset deep house lounge",
+            "luxury hotel lobby chillout mix",
+            "monaco sunset deep house lounge",
+            "saint tropez deep house mix",
+            "cote dazur summer house mix",
+            "elegant deep house dinner party",
+            "mediterranean villa chillout 2026",
+        ],
     },
     "pets": {
         "display_name": "Relaxing Dogs and Cats",
@@ -79,6 +181,23 @@ CHANNELS = {
         "concept": "soft acoustic for pets calm",
         "crossfade_seconds": 6,
         "video_keywords": ["dog music", "cat music", "pet relaxation", "calm pets", "anxiety music"],
+        "seo_keywords": [
+            "music for dogs home alone anxiety",
+            "calming music for stressed cats",
+            "puppy sleep music for first night",
+            "music for anxious dogs separation",
+            "vet recommended dog calming music",
+            "music to calm aggressive dogs barking",
+            "music for cats during car ride",
+            "calm music for new kittens",
+            "music for dogs with thunderstorm phobia",
+            "music for new puppy first night home",
+            "stress relief music for cats anxiety",
+            "music for senior dogs sleep peaceful",
+            "calm music for rescue dogs adoption",
+            "music for dogs while owner away",
+            "soothing music for anxious cats vet",
+        ],
     },
     "breathe": {
         "display_name": "Breathe and Chill",
@@ -90,6 +209,23 @@ CHANNELS = {
         "concept": "breathing meditation 4-7-8",
         "crossfade_seconds": 8,
         "video_keywords": ["breathing exercise", "4-7-8 breathing", "meditation", "calm music", "anxiety relief"],
+        "seo_keywords": [
+            "4-7-8 breathing for sleep guided 1 hour",
+            "deep breathing anxiety relief technique",
+            "box breathing technique audio guide",
+            "breathe to sleep fast guided meditation",
+            "panic attack breathing rescue guided",
+            "nighttime breathing meditation insomnia",
+            "diaphragmatic breathing exercise guided",
+            "guided breathing for stress relief 1 hour",
+            "slow breathing 6 breaths per minute",
+            "calm breathing for racing thoughts",
+            "breathing meditation for beginners",
+            "wim hof breathing 1 hour guided",
+            "breathing exercise for anxiety attack",
+            "morning breathing meditation energy",
+            "evening breathing meditation deep sleep",
+        ],
     },
 }
 
@@ -99,38 +235,38 @@ MIN_VIDEO_DURATION_SECONDS = 3600  # 60 dk minimum
 # Geçici dosya klasörü
 TEMP_DIR = "/tmp/youtube-bot"
 
-# Kanal bazlı başlık ve açıklama stilleri (Gemini için)
+# Kanal bazlı ton/stil ayarları (Gemini için, SEO yapısı kodda zorlanıyor)
 CHANNEL_PROMPTS = {
     "coding": {
-        "title_style": "Cozy, chill, study-focused. 50-70 characters. Use emojis like 🎵☕🌧️🌙. Examples: 'Lofi Hip Hop Radio 🎵 Beats to Study/Code/Relax', 'Rainy Coffee Shop ☕ Chill Lofi for Deep Focus', 'Late Night Study Session 🌙 1 Hour Lofi Mix'",
-        "description_style": "Warm and inviting. Mention studying, coding, focus, productivity. Include 2-3 keywords naturally. 3-4 sentences."
+        "title_style": "Cozy, chill, study-focused tone. Use 1 emoji from: 🎵☕🌧️🌙. Modifier examples: '1 HOUR', 'DEEP FOCUS', '2 AM SESSION', 'NO ADS'.",
+        "description_style": "Warm and inviting tone. Mention studying, coding, focus, productivity naturally. 3-4 sentences.",
     },
     "zen": {
-        "title_style": "Spiritual, peaceful, descriptive. 70-90 characters. Use emojis like 🕉️🧘🌸. Examples: 'Tibetan Healing Sounds 🕉️ Deep Yoga Meditation Music for Inner Peace', 'Zen Garden Meditation 🧘 Calming Tibetan Bowls for Stress Relief'",
-        "description_style": "Spiritual and grounding. Mention yoga, meditation, mindfulness, healing. 4-5 sentences with peaceful tone."
+        "title_style": "Spiritual, peaceful, descriptive tone. Use 1 emoji from: 🕉️🧘🌸🪷. Modifier examples: '1 HOUR', 'DEEP HEALING', 'INNER PEACE', 'STRESS RELIEF'.",
+        "description_style": "Spiritual and grounding tone. Mention yoga, meditation, mindfulness, healing. 4-5 sentences with peaceful tone.",
     },
     "vault": {
-        "title_style": "Aggressive, short, hard-hitting, 30-50 characters. Minimal emojis (🔥💰⚡). Examples: 'The grind never stops 🔥', 'millionaire mindset | sigma grindset', 'the day that make you different'",
-        "description_style": "Short, punchy, motivational. Sigma/grindset language. 2-3 short sentences. Direct and intense."
+        "title_style": "Aggressive, short, hard-hitting. Use 1 emoji from: 🔥💰⚡🐺. Modifier examples: 'GRINDSET', 'NO EXCUSES', 'LOCK IN', '1 HOUR'. ALL CAPS allowed for impact.",
+        "description_style": "Short, punchy, motivational. Sigma/grindset language. 2-3 short intense sentences.",
     },
     "chakra": {
-        "title_style": "Spiritual, frequency-focused, descriptive. 70-90 characters. Emojis like ✨🔮💫. Examples: '528 Hz Heart Chakra Healing ✨ Solfeggio Frequencies for Love & Balance', '432 Hz Deep Healing Meditation | Manifest Abundance & Clarity'",
-        "description_style": "Mystical and healing tone. Mention specific chakras, frequencies (Hz), benefits. 4-5 sentences."
+        "title_style": "Spiritual, frequency-focused, descriptive. Use 1 emoji from: ✨🔮💫🪷. Modifier examples: '1 HOUR', 'DEEP HEALING', 'MANIFEST', 'CLEANSE'.",
+        "description_style": "Mystical and healing tone. Mention specific chakras, frequencies (Hz), benefits. 4-5 sentences.",
     },
     "beach": {
-        "title_style": "Fun, summery, party energy. 50-70 characters. Emojis like 🌴☀️🏖️🍹. Examples: 'Tropical House Mix 🌴 Summer Beach Vibes 2026', 'Ibiza Sunset Sessions ☀️ Best Tropical House Hits'",
-        "description_style": "Energetic and bright. Mention summer, beach, vacation, party. 3-4 upbeat sentences."
+        "title_style": "Fun, summery, party energy. Use 1 emoji from: 🌴☀️🏖️🍹🌊. Modifier examples: '2026', 'SUMMER MIX', 'POOL PARTY', '1 HOUR'.",
+        "description_style": "Energetic and bright tone. Mention summer, beach, vacation, party. 3-4 upbeat sentences.",
     },
     "summer": {
-        "title_style": "Smooth, sophisticated, lounge feel. 50-70 characters. Emojis like 🌅🍸🌊. Examples: 'Deep House Sunset 🌅 Mediterranean Lounge Vibes', 'Summer Rooftop Sessions | Smooth Deep House Mix'",
-        "description_style": "Refined and chill. Mediterranean, lounge, sunset, rooftop. 3-4 sophisticated sentences."
+        "title_style": "Smooth, sophisticated, lounge feel. Use 1 emoji from: 🌅🍸🌊✨. Modifier examples: 'SUNSET MIX', 'GOLDEN HOUR', 'LUXURY', '1 HOUR'.",
+        "description_style": "Refined and chill tone. Mediterranean, lounge, sunset, rooftop language. 3-4 sophisticated sentences.",
     },
     "pets": {
-        "title_style": "Warm, caring, problem-solving. 60-80 characters. Emojis like 🐾🐶🐱. Examples: 'Music for Anxious Dogs 🐾 Calm Pets Music Home Alone', 'Soothing Music for Cats 🐱 Reduce Stress & Anxiety'",
-        "description_style": "Caring and helpful tone. Mention pet anxiety, separation, calming, vet-recommended. 4-5 warm sentences."
+        "title_style": "Warm, caring, problem-solving tone. Use 1 emoji from: 🐾🐶🐱🦮. Modifier examples: '1 HOUR', 'VET APPROVED', 'CALMING', 'PROVEN'.",
+        "description_style": "Caring and helpful tone. Mention pet anxiety, separation, calming, vet-recommended. 4-5 warm sentences.",
     },
     "breathe": {
-        "title_style": "Calm, sleep-focused, healing. 60-80 characters. Emojis like 😴💤🌙. Examples: '4-7-8 Breathing Music 😴 Deep Sleep & Anxiety Relief', 'Calm Breathing Meditation 🌙 Fall Asleep Fast'",
-        "description_style": "Soft and reassuring. Mention sleep, anxiety, breathing techniques, relaxation. 4-5 gentle sentences."
+        "title_style": "Calm, sleep-focused, healing tone. Use 1 emoji from: 😴💤🌙🫁. Modifier examples: 'GUIDED', 'DEEP SLEEP', 'ANXIETY RELIEF', '1 HOUR'.",
+        "description_style": "Soft and reassuring tone. Mention sleep, anxiety, breathing techniques, relaxation. 4-5 gentle sentences.",
     },
 }
