@@ -8,12 +8,14 @@ on:
         required: true
         default: "coding"
   schedule:
-    # Sabah Batch 02:00 UTC = 05:00 TR
-    - cron: "0 1 * * *"   # vault, zen, pets
-    # Öğle Batch 09:00 UTC = 12:00 TR
-    - cron: "0 8 * * *"   # coding, beach, chakra
-    # Akşam Batch 14:00 UTC = 17:00 TR
-    - cron: "0 13 * * *"  # summer, breathe
+    # Her cron, hedef yayın saatinden ~2 saat öncesi (encoding + gecikme + işleme dahil)
+    - cron: "0 1 * * *"   # breathe   → US gece (22:00 EST ertesi gün)
+    - cron: "0 9 * * *"   # vault     → US sabah motivasyon (06:00 EST)
+    - cron: "0 10 * * *"  # zen, chakra → US sabah meditasyon (07:00 EST)
+    - cron: "0 11 * * *"  # pets      → US evden çıkış (08:00 EST)
+    - cron: "0 14 * * *"  # beach     → EU Cuma akşam (17:00 CET)
+    - cron: "0 15 * * *"  # summer    → EU gün batımı (18:00 CET)
+    - cron: "0 16 * * *"  # coding    → US öğleden sonra (13:00 EST)
 
 jobs:
   run-pipeline:
@@ -22,9 +24,17 @@ jobs:
 
     strategy:
       fail-fast: false
-      max-parallel: 1
+      max-parallel: 2
       matrix:
-        channel: ${{ fromJSON(github.event_name == 'workflow_dispatch' && format('["{0}"]', inputs.channel) || (github.event.schedule == '0 1 * * *' && '["vault", "zen", "pets"]' || (github.event.schedule == '0 8 * * *' && '["coding", "beach", "chakra"]' || '["summer", "breathe"]'))) }}
+        channel: ${{ fromJSON(
+          github.event_name == 'workflow_dispatch' && format('["{0}"]', inputs.channel)
+          || (github.event.schedule == '0 1 * * *' && '["breathe"]'
+          || (github.event.schedule == '0 9 * * *' && '["vault"]'
+          || (github.event.schedule == '0 10 * * *' && '["zen", "chakra"]'
+          || (github.event.schedule == '0 11 * * *' && '["pets"]'
+          || (github.event.schedule == '0 14 * * *' && '["beach"]'
+          || (github.event.schedule == '0 15 * * *' && '["summer"]'
+          || '["coding"]'))))))) }}
 
     steps:
       - name: Checkout repo
