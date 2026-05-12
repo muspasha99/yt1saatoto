@@ -93,7 +93,7 @@ def run_pipeline(channel_code):
         
         # 4. ADIM: Thumbnail oluştur (videodan rastgele kare, yazısız)
         print("\n[4/6] 🎨 Thumbnail oluşturuluyor...")
-        thumbnail_creator.create_thumbnail(bg_video, thumbnail)
+        thumbnail_creator.create_thumbnail(bg_video, thumbnail, channel_config=channel)
         
         # 5. ADIM: Gemini ile metadata + Final videoyu oluştur
         print("\n[5/6] 🤖 Metadata üretiliyor + 🎥 Video birleştiriliyor...")
