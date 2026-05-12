@@ -97,7 +97,7 @@ def run_pipeline(channel_code):
         
         # 5. ADIM: Gemini ile metadata + Final videoyu oluştur
         print("\n[5/6] 🤖 Metadata üretiliyor + 🎥 Video birleştiriliyor...")
-        metadata = gemini_handler.generate_metadata(gemini_key, channel, prompts)
+        metadata = gemini_handler.generate_metadata(gemini_key, channel, prompts, thumbnail_path=thumbnail,)
         
         video_creator.create_video(
             audio_output,
