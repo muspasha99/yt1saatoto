@@ -29,10 +29,10 @@ CHANNELS = {
             "lofi hip hop study beats playlist",
             "coffee shop ambience study music",
             "night owl coding lofi playlist",
-            "thumbnail_style": "text",
-            "thumbnail_font": "SpaceGrotesk-Bold.ttf",
-            "thumbnail_texts": ["DEEP FOCUS", "CODE MODE", "FOCUS", "STUDY SESSION", "LOCK IN"],
         ],
+        "thumbnail_style": "text",
+        "thumbnail_font": "SpaceGrotesk-Bold.ttf",
+        "thumbnail_texts": ["DEEP FOCUS", "CODE MODE", "FOCUS", "STUDY SESSION", "LOCK IN"],
     },
     "zen": {
         "display_name": "Zen Yoga Music",
@@ -60,10 +60,10 @@ CHANNELS = {
             "deep meditation music for spiritual healing",
             "kundalini yoga awakening music",
             "calming yoga music for beginners",
-            "thumbnail_style": "text",
-            "thumbnail_font": "CormorantGaramond-Bold.ttf",
-            "thumbnail_texts": ["Tibetan Bowls", "Inner Peace", "Zen Yoga", "Deep Calm", "Morning Zen"],
         ],
+        "thumbnail_style": "text",
+        "thumbnail_font": "CormorantGaramond-Bold.ttf",
+        "thumbnail_texts": ["Tibetan Bowls", "Inner Peace", "Zen Yoga", "Deep Calm", "Morning Zen"],
     },
     "vault": {
         "display_name": "Millionaire Vault",
@@ -91,10 +91,11 @@ CHANNELS = {
             "dark phonk gym workout 2026",
             "high value man motivation music",
             "boss energy dark trap mix",
-            "thumbnail_style": "text",
-            "thumbnail_font": "BebasNeue-Regular.ttf",
-            "thumbnail_texts": ["GRINDSET", "LOCK IN", "NO EXCUSES", "MILLIONAIRE"],
+            
         ],
+        "thumbnail_style": "text",
+        "thumbnail_font": "BebasNeue-Regular.ttf",
+        "thumbnail_texts": ["GRINDSET", "LOCK IN", "NO EXCUSES", "MILLIONAIRE"],
     },
     "chakra": {
         "display_name": "Chakra Healing Meditation",
@@ -122,10 +123,11 @@ CHANNELS = {
             "chakra alignment morning meditation",
             "balancing chakras for beginners guided",
             "deep chakra cleansing solfeggio frequencies",
-            "thumbnail_style": "text",
-            "thumbnail_font": "Marcellus-Regular.ttf",
-            "thumbnail_texts": ["Chakra Healing", "528 Hz", "432 Hz", "Frequency Healing", "Sacred Sounds"],
+            
         ],
+        "thumbnail_style": "text",
+        "thumbnail_font": "Marcellus-Regular.ttf",
+        "thumbnail_texts": ["Chakra Healing", "528 Hz", "432 Hz", "Frequency Healing", "Sacred Sounds"],
     },
     "beach": {
         "display_name": "Beach Club Beats",
@@ -153,10 +155,11 @@ CHANNELS = {
             "beach club afternoon house mix",
             "balearic beach house ibiza vibes",
             "tropical house workout summer mix",
-            "thumbnail_style": "clean",
-            "thumbnail_font": "",
-            "thumbnail_texts": [],
+            
         ],
+        "thumbnail_style": "clean",
+        "thumbnail_font": "",
+        "thumbnail_texts": [],
     },
     "summer": {
         "display_name": "Summer House Music",
@@ -184,10 +187,11 @@ CHANNELS = {
             "cote dazur summer house mix",
             "elegant deep house dinner party",
             "mediterranean villa chillout 2026",
-            "thumbnail_style": "clean",
-            "thumbnail_font": "",
-            "thumbnail_texts": [],
+            
         ],
+        "thumbnail_style": "clean",
+        "thumbnail_font": "",
+        "thumbnail_texts": [],
     },
     "pets": {
         "display_name": "Relaxing Dogs and Cats",
@@ -215,10 +219,11 @@ CHANNELS = {
             "calm music for rescue dogs adoption",
             "music for dogs while owner away",
             "soothing music for anxious cats vet",
-            "thumbnail_style": "text",
-            "thumbnail_font": "Nunito-ExtraBold.ttf",
-            "thumbnail_texts": ["Calm Pets", "Dog Relax", "Cat Sleep", "Home Alone", "Anxious Pets"],
+            
         ],
+        "thumbnail_style": "text",
+        "thumbnail_font": "Nunito-ExtraBold.ttf",
+        "thumbnail_texts": ["Calm Pets", "Dog Relax", "Cat Sleep", "Home Alone", "Anxious Pets"],
     },
     "breathe": {
         "display_name": "Breathe and Chill",
@@ -246,10 +251,11 @@ CHANNELS = {
             "breathing exercise for anxiety attack",
             "morning breathing meditation energy",
             "evening breathing meditation deep sleep",
-            "thumbnail_style": "text",
-            "thumbnail_font": "Quicksand-Bold.ttf",
-            "thumbnail_texts": ["Breathe", "4-7-8", "Deep Sleep", "Just Breathe", "Calm"],
+            
         ],
+        "thumbnail_style": "text",
+        "thumbnail_font": "Quicksand-Bold.ttf",
+        "thumbnail_texts": ["Breathe", "4-7-8", "Deep Sleep", "Just Breathe", "Calm"],
     },
 }
 
