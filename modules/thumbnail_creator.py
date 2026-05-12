@@ -1,6 +1,6 @@
 """
 Thumbnail oluşturur.
-- Videodan rastgele bir kare alır, 1280x720'ye getirir.
+- Videodan rastgele bir kare alır, yüksek kalitede işler (2K upscale).
 - Kanal stiline göre yazı ekler (thumbnail_style: "text" veya "clean").
 - Font, kanal config'inden alınır (fonts/ klasöründen yüklenir).
 """
@@ -15,7 +15,11 @@ FONTS_DIR = "fonts"
 
 
 def _extract_random_frame(video_path, output_path):
-    """Videodan rastgele bir kare çıkarır (orta bölümden, 30-70%)."""
+    """
+    Videodan rastgele bir kare çıkarır (orta bölümden, 30-70%).
+    YÜKSEK KALİTE: 2K'ya upscale + kalite filtreleri uygular.
+    """
+    # Video süresini öğren
     cmd_probe = [
         "ffprobe", "-v", "error",
         "-show_entries", "format=duration",
@@ -26,15 +30,53 @@ def _extract_random_frame(video_path, output_path):
     duration = float(result.stdout.strip())
     time_offset = random.uniform(duration * 0.3, duration * 0.7)
 
-    cmd = [
-        "ffmpeg", "-y",
-        "-ss", str(time_offset),
-        "-i", video_path,
-        "-vframes", "1",
-        "-q:v", "2",
-        output_path,
-    ]
-    subprocess.run(cmd, check=True, capture_output=True)
+    # Geçici yüksek kaliteli frame
+    temp_hq_frame = output_path.replace(".jpg", "_hq_temp.png")
+
+    try:
+        # ADIM 1: Frame yakala + 2K'ya büyüt (en yüksek kalite)
+        subprocess.run([
+            "ffmpeg", "-y",
+            "-ss", str(time_offset),
+            "-i", video_path,
+            "-vframes", "1",
+            "-q:v", "1",                                    # En yüksek kalite
+            "-vf", "scale=2560:1440:flags=lanczos",        # 2K + lanczos filtre
+            temp_hq_frame,
+        ], check=True, capture_output=True, stderr=subprocess.DEVNULL)
+
+        # ADIM 2: Kalite artırma filtreleri uygula
+        subprocess.run([
+            "ffmpeg", "-y",
+            "-i", temp_hq_frame,
+            "-vf", (
+                "unsharp=5:5:1.5:5:5:0.0,"                 # Netlik artır
+                "eq=contrast=1.1:brightness=0.02:saturation=1.15,"  # Kontrast/renk
+                "nlmeans=s=1.5"                            # Gürültü azalt
+            ),
+            "-q:v", "2",                                   # Yüksek kalite
+            output_path,
+        ], check=True, capture_output=True, stderr=subprocess.DEVNULL)
+
+        print(f"   ✨ Yüksek kaliteli frame alındı (2K upscale)")
+
+    except subprocess.CalledProcessError:
+        # Gelişmiş filtreler başarısız olursa basit yönteme geri dön
+        print(f"   ⚠️ Gelişmiş filtreler çalışmadı, basit yöntem kullanılıyor...")
+        subprocess.run([
+            "ffmpeg", "-y",
+            "-ss", str(time_offset),
+            "-i", video_path,
+            "-vframes", "1",
+            "-q:v", "2",
+            output_path,
+        ], check=True, capture_output=True)
+
+    finally:
+        # Geçici dosyayı temizle
+        if os.path.exists(temp_hq_frame):
+            os.remove(temp_hq_frame)
+
     return output_path
 
 
@@ -138,7 +180,7 @@ def create_thumbnail(background_video_path, output_path, channel_config=None):
     style_label = "yazılı" if thumbnail_style == "text" else "yazısız"
     print(f"🎨 Thumbnail oluşturuluyor ({style_label})...")
 
-    # 1. Videodan rastgele kare çıkar
+    # 1. Videodan rastgele kare çıkar (YÜKSEK KALİTE)
     temp_frame = output_path.replace(".jpg", "_frame.jpg")
     _extract_random_frame(background_video_path, temp_frame)
 
