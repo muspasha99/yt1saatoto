@@ -43,7 +43,7 @@ def _extract_random_frame(video_path, output_path):
             "-q:v", "1",                                    # En yüksek kalite
             "-vf", "scale=2560:1440:flags=lanczos",        # 2K + lanczos filtre
             temp_hq_frame,
-        ], check=True, capture_output=True, stderr=subprocess.DEVNULL)
+        ], check=True, capture_output=True)
 
         # ADIM 2: Kalite artırma filtreleri uygula
         subprocess.run([
@@ -56,7 +56,7 @@ def _extract_random_frame(video_path, output_path):
             ),
             "-q:v", "2",                                   # Yüksek kalite
             output_path,
-        ], check=True, capture_output=True, stderr=subprocess.DEVNULL)
+        ], check=True, capture_output=True)
 
         print(f"   ✨ Yüksek kaliteli frame alındı (2K upscale)")
 
