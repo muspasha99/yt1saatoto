@@ -51,23 +51,39 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y ffmpeg fonts-dejavu
           ffmpeg -version
+
+        
       - name: Download fonts
         run: |
           mkdir -p fonts
+          BASE="https://cdn.jsdelivr.net/gh/google/fonts@main"
+
           wget -q -O fonts/SpaceGrotesk-Bold.ttf \
-            "https://github.com/google/fonts/raw/main/ofl/spacegrotesk/static/SpaceGrotesk-Bold.ttf"
+            "$BASE/ofl/spacegrotesk/static/SpaceGrotesk-Bold.ttf" \
+            || echo "⚠ SpaceGrotesk indirilemedi, fallback kullanılacak"
+
           wget -q -O fonts/CormorantGaramond-Bold.ttf \
-            "https://github.com/google/fonts/raw/main/ofl/cormorantgaramond/CormorantGaramond-Bold.ttf"
+            "$BASE/ofl/cormorantgaramond/CormorantGaramond-Bold.ttf" \
+            || echo "⚠ CormorantGaramond indirilemedi"
+
           wget -q -O fonts/BebasNeue-Regular.ttf \
-            "https://github.com/google/fonts/raw/main/ofl/bebasneue/BebasNeue-Regular.ttf"
+            "$BASE/ofl/bebasneue/BebasNeue-Regular.ttf" \
+            || echo "⚠ BebasNeue indirilemedi"
+
           wget -q -O fonts/Marcellus-Regular.ttf \
-            "https://github.com/google/fonts/raw/main/ofl/marcellus/Marcellus-Regular.ttf"
+            "$BASE/ofl/marcellus/Marcellus-Regular.ttf" \
+            || echo "⚠ Marcellus indirilemedi"
+
           wget -q -O fonts/Nunito-ExtraBold.ttf \
-            "https://github.com/google/fonts/raw/main/ofl/nunito/static/Nunito-ExtraBold.ttf"
+            "$BASE/ofl/nunito/static/Nunito-ExtraBold.ttf" \
+            || echo "⚠ Nunito indirilemedi"
+
           wget -q -O fonts/Quicksand-Bold.ttf \
-            "https://github.com/google/fonts/raw/main/ofl/quicksand/static/Quicksand-Bold.ttf"
-          echo "✅ Fontlar indirildi:"
-          ls -lh fonts/    
+            "$BASE/ofl/quicksand/static/Quicksand-Bold.ttf" \
+            || echo "⚠ Quicksand indirilemedi"
+
+          echo "Font klasörü:"
+          ls -lh fonts/ 2>/dev/null || echo "(fonts klasörü boş)"    
 
       - name: Install Python dependencies
         run: |
