@@ -76,6 +76,9 @@ PRIMARY SEO KEYWORD (optimize for this): "{primary_keyword}"
 - 3-5 sentences total
 - NO "Subscribe!" calls, NO external links
 - Style/tone notes: {description_style}
+- At the very END of description, add exactly 3-5 hashtags like: #lofi #studymusic #relaxing
+- Hashtags must match the primary keyword and niche
+- Hashtags go on a new line at the end
 
 === TAGS REQUIREMENTS ===
 - 12-15 tags total
@@ -119,11 +122,17 @@ Respond ONLY with valid JSON (no markdown, no explanation):
     if not all(k in data for k in ["title", "description", "tags"]):
         raise Exception(f"Gemini eksik alan döndürdü: {data}")
 
-    # YouTube limitleri
+   # YouTube limitleri
     if len(data["title"]) > 100:
         data["title"] = data["title"][:97] + "..."
     if len(data["description"]) > 5000:
         data["description"] = data["description"][:4997] + "..."
+    
+    # Hashtagler description'da yoksa otomatik ekle
+    desc = data["description"]
+    if "#" not in desc:
+        hashtags = " ".join(f"#{tag.replace(' ', '')}" for tag in data["tags"][:5])
+        data["description"] = desc.strip() + f"\n\n{hashtags}"
 
     tags = data["tags"]
     while len(",".join(tags)) > 500 and len(tags) > 5:
