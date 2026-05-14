@@ -52,33 +52,32 @@ jobs:
           sudo apt-get install -y ffmpeg fonts-dejavu
           ffmpeg -version
 
-        
       - name: Download fonts
         run: |
           mkdir -p fonts
 
           wget -q -O fonts/SpaceGrotesk-Bold.ttf \
-            "https://github.com/google/fonts/raw/main/ofl/spacegrotesk/static/SpaceGrotesk-Bold.ttf" \
+            "https://fonts.gstatic.com/s/spacegrotesk/v16/V8mQoQDjQSkFtoMM3T6r8E7mF71Q-gowFXDTD26GxA.ttf" \
             || echo "⚠ SpaceGrotesk indirilemedi"
 
           wget -q -O fonts/CormorantGaramond-Bold.ttf \
-            "https://github.com/google/fonts/raw/main/ofl/cormorantgaramond/static/CormorantGaramond-Bold.ttf" \
+            "https://fonts.gstatic.com/s/cormorantgaramond/v21/co3YmX5slCNuHLi8bLeY9MK7whWMhyjQAllvuQ.ttf" \
             || echo "⚠ CormorantGaramond indirilemedi"
 
           wget -q -O fonts/BebasNeue-Regular.ttf \
-            "https://github.com/google/fonts/raw/main/ofl/bebasneue/static/BebasNeue-Regular.ttf" \
+            "https://fonts.gstatic.com/s/bebasneue/v14/JTUSjIg69CK48gW7PXooxW5rygbi49c.ttf" \
             || echo "⚠ BebasNeue indirilemedi"
 
           wget -q -O fonts/Marcellus-Regular.ttf \
-            "https://github.com/google/fonts/raw/main/ofl/marcellus/static/Marcellus-Regular.ttf" \
+            "https://fonts.gstatic.com/s/marcellus/v13/wEO_EBrOk8hQLDvIAF8FUfAL3EsHiA.ttf" \
             || echo "⚠ Marcellus indirilemedi"
 
           wget -q -O fonts/Nunito-ExtraBold.ttf \
-            "https://github.com/google/fonts/raw/main/ofl/nunito/static/Nunito-ExtraBold.ttf" \
+            "https://fonts.gstatic.com/s/nunito/v26/XRXI3I6Li01BKofiOc5wtlZ2di8HDIkhdTQ3j6zbXWjgeg.ttf" \
             || echo "⚠ Nunito indirilemedi"
 
           wget -q -O fonts/Quicksand-Bold.ttf \
-            "https://github.com/google/fonts/raw/main/ofl/quicksand/static/Quicksand-Bold.ttf" \
+            "https://fonts.gstatic.com/s/quicksand/v31/6xKtdSZaM9iE8KbpRA_hK1QNYuDyP7bh.ttf" \
             || echo "⚠ Quicksand indirilemedi"
 
           echo "Font klasörü:"
