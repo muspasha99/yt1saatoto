@@ -6,21 +6,15 @@ import os
 import io
 import json
 import random
-from google.oauth2.credentials import Credentials
+from google.oauth2 import service_account
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaIoBaseDownload
 
 
 def _get_drive_service(token_json_str):
-    """Drive token'ı kullanarak Drive servisini başlatır."""
-    token_data = json.loads(token_json_str)
-    creds = Credentials(
-        token=token_data["token"],
-        refresh_token=token_data["refresh_token"],
-        token_uri=token_data["token_uri"],
-        client_id=token_data["client_id"],
-        client_secret=token_data["client_secret"],
-        scopes=token_data["scopes"],
+    creds = service_account.Credentials.from_service_account_info(
+        json.loads(token_json_str),
+        scopes=["https://www.googleapis.com/auth/drive.readonly"]
     )
     return build("drive", "v3", credentials=creds)
 
