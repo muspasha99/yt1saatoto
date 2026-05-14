@@ -62,15 +62,15 @@ jobs:
             || echo "⚠ SpaceGrotesk indirilemedi"
 
           wget -q -O fonts/CormorantGaramond-Bold.ttf \
-            "https://github.com/google/fonts/raw/main/ofl/cormorantgaramond/CormorantGaramond-Bold.ttf" \
+            "https://github.com/google/fonts/raw/main/ofl/cormorantgaramond/static/CormorantGaramond-Bold.ttf" \
             || echo "⚠ CormorantGaramond indirilemedi"
 
           wget -q -O fonts/BebasNeue-Regular.ttf \
-            "https://github.com/google/fonts/raw/main/ofl/bebasneue/BebasNeue-Regular.ttf" \
+            "https://github.com/google/fonts/raw/main/ofl/bebasneue/static/BebasNeue-Regular.ttf" \
             || echo "⚠ BebasNeue indirilemedi"
 
           wget -q -O fonts/Marcellus-Regular.ttf \
-            "https://github.com/google/fonts/raw/main/ofl/marcellus/Marcellus-Regular.ttf" \
+            "https://github.com/google/fonts/raw/main/ofl/marcellus/static/Marcellus-Regular.ttf" \
             || echo "⚠ Marcellus indirilemedi"
 
           wget -q -O fonts/Nunito-ExtraBold.ttf \
