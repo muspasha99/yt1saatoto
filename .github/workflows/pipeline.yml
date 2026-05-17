@@ -8,18 +8,17 @@ on:
         required: true
         default: "coding"
   schedule:
-    # Her cron, hedef yayın saatinden ~2 saat öncesi (encoding + gecikme + işleme dahil)
-    - cron: "0 1 * * *"   # breathe       → US gece (22:00 EST ertesi gün)
-    - cron: "0 2 * * *"   # ocean         → US gece uyku (21:00 EST)
-    - cron: "0 3 * * *"   # cosmic        → US gece uzay (22:00 EST)
-    - cron: "0 9 * * *"   # vault         → US sabah motivasyon (06:00 EST)
-    - cron: "0 10 * * *"  # zen, chakra   → US sabah meditasyon (07:00 EST)
-    - cron: "0 11 * * *"  # pets          → US evden çıkış (08:00 EST)
-    - cron: "0 13 * * *"  # rain          → US sabah / EU öğlen (09:00 EST)
-    - cron: "0 14 * * *"  # beach         → EU Cuma akşam (17:00 CET)
-    - cron: "0 15 * * *"  # summer        → EU gün batımı (18:00 CET)
-    - cron: "0 16 * * *"  # coding        → US öğleden sonra (13:00 EST)
-    - cron: "0 17 * * *"  # mediterranean → EU akşam (19:00 CET)
+    - cron: "0 1 * * *"   # breathe
+    - cron: "0 2 * * *"   # ocean
+    - cron: "0 3 * * *"   # cosmic
+    - cron: "0 9 * * *"   # vault
+    - cron: "0 10 * * *"  # zen, chakra
+    - cron: "0 11 * * *"  # pets
+    - cron: "0 13 * * *"  # rain
+    - cron: "0 14 * * *"  # beach
+    - cron: "0 15 * * *"  # summer
+    - cron: "0 16 * * *"  # coding
+    - cron: "0 17 * * *"  # mediterranean
 
 jobs:
   run-pipeline:
@@ -30,38 +29,72 @@ jobs:
       fail-fast: false
       max-parallel: 2
       matrix:
-        channel: ${{ fromJSON(
-          github.event_name == 'workflow_dispatch' && format('["{0}"]', inputs.channel)
-          || (github.event.schedule == '0 1 * * *' && '["breathe"]'
-          || (github.event.schedule == '0 2 * * *' && '["ocean"]'
-          || (github.event.schedule == '0 3 * * *' && '["cosmic"]'
-          || (github.event.schedule == '0 9 * * *' && '["vault"]'
-          || (github.event.schedule == '0 10 * * *' && '["zen", "chakra"]'
-          || (github.event.schedule == '0 11 * * *' && '["pets"]'
-          || (github.event.schedule == '0 13 * * *' && '["rain"]'
-          || (github.event.schedule == '0 14 * * *' && '["beach"]'
-          || (github.event.schedule == '0 15 * * *' && '["summer"]'
-          || (github.event.schedule == '0 16 * * *' && '["coding"]'
-          || (github.event.schedule == '0 17 * * *' && '["mediterranean"]'
-          || '["coding"]'))))))))))) }}
+        include:
+          - channel: coding
+          - channel: zen
+          - channel: vault
+          - channel: chakra
+          - channel: beach
+          - channel: summer
+          - channel: pets
+          - channel: breathe
+          - channel: cosmic
+          - channel: ocean
+          - channel: mediterranean
+          - channel: rain
 
     steps:
+      - name: Check schedule match
+        id: check
+        run: |
+          CHANNEL="${{ matrix.channel }}"
+          SCHEDULE="${{ github.event.schedule }}"
+          EVENT="${{ github.event_name }}"
+          INPUT="${{ inputs.channel }}"
+
+          if [ "$EVENT" = "workflow_dispatch" ]; then
+            if [ "$CHANNEL" = "$INPUT" ]; then
+              echo "run=true" >> $GITHUB_OUTPUT
+            else
+              echo "run=false" >> $GITHUB_OUTPUT
+            fi
+          else
+            case "$SCHEDULE" in
+              "0 1 * * *")  [ "$CHANNEL" = "breathe" ] && echo "run=true" >> $GITHUB_OUTPUT || echo "run=false" >> $GITHUB_OUTPUT ;;
+              "0 2 * * *")  [ "$CHANNEL" = "ocean" ] && echo "run=true" >> $GITHUB_OUTPUT || echo "run=false" >> $GITHUB_OUTPUT ;;
+              "0 3 * * *")  [ "$CHANNEL" = "cosmic" ] && echo "run=true" >> $GITHUB_OUTPUT || echo "run=false" >> $GITHUB_OUTPUT ;;
+              "0 9 * * *")  [ "$CHANNEL" = "vault" ] && echo "run=true" >> $GITHUB_OUTPUT || echo "run=false" >> $GITHUB_OUTPUT ;;
+              "0 10 * * *") [ "$CHANNEL" = "zen" ] || [ "$CHANNEL" = "chakra" ] && echo "run=true" >> $GITHUB_OUTPUT || echo "run=false" >> $GITHUB_OUTPUT ;;
+              "0 11 * * *") [ "$CHANNEL" = "pets" ] && echo "run=true" >> $GITHUB_OUTPUT || echo "run=false" >> $GITHUB_OUTPUT ;;
+              "0 13 * * *") [ "$CHANNEL" = "rain" ] && echo "run=true" >> $GITHUB_OUTPUT || echo "run=false" >> $GITHUB_OUTPUT ;;
+              "0 14 * * *") [ "$CHANNEL" = "beach" ] && echo "run=true" >> $GITHUB_OUTPUT || echo "run=false" >> $GITHUB_OUTPUT ;;
+              "0 15 * * *") [ "$CHANNEL" = "summer" ] && echo "run=true" >> $GITHUB_OUTPUT || echo "run=false" >> $GITHUB_OUTPUT ;;
+              "0 16 * * *") [ "$CHANNEL" = "coding" ] && echo "run=true" >> $GITHUB_OUTPUT || echo "run=false" >> $GITHUB_OUTPUT ;;
+              "0 17 * * *") [ "$CHANNEL" = "mediterranean" ] && echo "run=true" >> $GITHUB_OUTPUT || echo "run=false" >> $GITHUB_OUTPUT ;;
+              *) echo "run=false" >> $GITHUB_OUTPUT ;;
+            esac
+          fi
+
       - name: Checkout repo
+        if: steps.check.outputs.run == 'true'
         uses: actions/checkout@v4
 
       - name: Set up Python 3.12
+        if: steps.check.outputs.run == 'true'
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
           cache: "pip"
 
       - name: Install FFmpeg
+        if: steps.check.outputs.run == 'true'
         run: |
           sudo apt-get update
           sudo apt-get install -y ffmpeg fonts-dejavu fonts-open-sans
           ffmpeg -version
 
       - name: Download fonts
+        if: steps.check.outputs.run == 'true'
         run: |
           mkdir -p fonts
 
@@ -99,21 +132,21 @@ jobs:
           ls -lh fonts/
 
       - name: Install Python dependencies
+        if: steps.check.outputs.run == 'true'
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
       - name: Run pipeline for channel ${{ matrix.channel }}
+        if: steps.check.outputs.run == 'true'
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-          # Drive tokens (6 hesap)
           DRIVE_TOKEN_HESAP98: ${{ secrets.DRIVE_TOKEN_HESAP98 }}
           DRIVE_TOKEN_HESAP97: ${{ secrets.DRIVE_TOKEN_HESAP97 }}
           DRIVE_TOKEN_HESAP99: ${{ secrets.DRIVE_TOKEN_HESAP99 }}
           DRIVE_TOKEN_HESAP87: ${{ secrets.DRIVE_TOKEN_HESAP87 }}
           DRIVE_TOKEN_HESAP100: ${{ secrets.DRIVE_TOKEN_HESAP100 }}
           DRIVE_TOKEN_HESAP101: ${{ secrets.DRIVE_TOKEN_HESAP101 }}
-          # YouTube tokens (12 kanal)
           YT_TOKEN_CODING: ${{ secrets.YT_TOKEN_CODING }}
           YT_TOKEN_ZEN: ${{ secrets.YT_TOKEN_ZEN }}
           YT_TOKEN_VAULT: ${{ secrets.YT_TOKEN_VAULT }}
