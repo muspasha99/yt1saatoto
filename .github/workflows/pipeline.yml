@@ -4,18 +4,22 @@ on:
   workflow_dispatch:
     inputs:
       channel:
-        description: "Kanal kodu (coding, zen, vault, chakra, beach, summer, pets, breathe)"
+        description: "Kanal kodu (coding, zen, vault, chakra, beach, summer, pets, breathe, cosmic, ocean, mediterranean, rain)"
         required: true
         default: "coding"
   schedule:
     # Her cron, hedef yayın saatinden ~2 saat öncesi (encoding + gecikme + işleme dahil)
-    - cron: "0 1 * * *"   # breathe   → US gece (22:00 EST ertesi gün)
-    - cron: "0 9 * * *"   # vault     → US sabah motivasyon (06:00 EST)
-    - cron: "0 10 * * *"  # zen, chakra → US sabah meditasyon (07:00 EST)
-    - cron: "0 11 * * *"  # pets      → US evden çıkış (08:00 EST)
-    - cron: "0 14 * * *"  # beach     → EU Cuma akşam (17:00 CET)
-    - cron: "0 15 * * *"  # summer    → EU gün batımı (18:00 CET)
-    - cron: "0 16 * * *"  # coding    → US öğleden sonra (13:00 EST)
+    - cron: "0 1 * * *"   # breathe       → US gece (22:00 EST ertesi gün)
+    - cron: "0 2 * * *"   # ocean         → US gece uyku (21:00 EST)
+    - cron: "0 3 * * *"   # cosmic        → US gece uzay (22:00 EST)
+    - cron: "0 9 * * *"   # vault         → US sabah motivasyon (06:00 EST)
+    - cron: "0 10 * * *"  # zen, chakra   → US sabah meditasyon (07:00 EST)
+    - cron: "0 11 * * *"  # pets          → US evden çıkış (08:00 EST)
+    - cron: "0 13 * * *"  # rain          → US sabah / EU öğlen (09:00 EST)
+    - cron: "0 14 * * *"  # beach         → EU Cuma akşam (17:00 CET)
+    - cron: "0 15 * * *"  # summer        → EU gün batımı (18:00 CET)
+    - cron: "0 16 * * *"  # coding        → US öğleden sonra (13:00 EST)
+    - cron: "0 17 * * *"  # mediterranean → EU akşam (19:00 CET)
 
 jobs:
   run-pipeline:
@@ -29,12 +33,17 @@ jobs:
         channel: ${{ fromJSON(
           github.event_name == 'workflow_dispatch' && format('["{0}"]', inputs.channel)
           || (github.event.schedule == '0 1 * * *' && '["breathe"]'
+          || (github.event.schedule == '0 2 * * *' && '["ocean"]'
+          || (github.event.schedule == '0 3 * * *' && '["cosmic"]'
           || (github.event.schedule == '0 9 * * *' && '["vault"]'
           || (github.event.schedule == '0 10 * * *' && '["zen", "chakra"]'
           || (github.event.schedule == '0 11 * * *' && '["pets"]'
+          || (github.event.schedule == '0 13 * * *' && '["rain"]'
           || (github.event.schedule == '0 14 * * *' && '["beach"]'
           || (github.event.schedule == '0 15 * * *' && '["summer"]'
-          || '["coding"]'))))))) }}
+          || (github.event.schedule == '0 16 * * *' && '["coding"]'
+          || (github.event.schedule == '0 17 * * *' && '["mediterranean"]'
+          || '["coding"]'))))))))))) }}
 
     steps:
       - name: Checkout repo
@@ -97,14 +106,14 @@ jobs:
       - name: Run pipeline for channel ${{ matrix.channel }}
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-          # Drive tokens (4 hesap)
+          # Drive tokens (6 hesap)
           DRIVE_TOKEN_HESAP98: ${{ secrets.DRIVE_TOKEN_HESAP98 }}
           DRIVE_TOKEN_HESAP97: ${{ secrets.DRIVE_TOKEN_HESAP97 }}
           DRIVE_TOKEN_HESAP99: ${{ secrets.DRIVE_TOKEN_HESAP99 }}
           DRIVE_TOKEN_HESAP87: ${{ secrets.DRIVE_TOKEN_HESAP87 }}
           DRIVE_TOKEN_HESAP100: ${{ secrets.DRIVE_TOKEN_HESAP100 }}
           DRIVE_TOKEN_HESAP101: ${{ secrets.DRIVE_TOKEN_HESAP101 }}
-          # YouTube tokens (8 kanal)
+          # YouTube tokens (12 kanal)
           YT_TOKEN_CODING: ${{ secrets.YT_TOKEN_CODING }}
           YT_TOKEN_ZEN: ${{ secrets.YT_TOKEN_ZEN }}
           YT_TOKEN_VAULT: ${{ secrets.YT_TOKEN_VAULT }}
@@ -113,5 +122,9 @@ jobs:
           YT_TOKEN_SUMMER: ${{ secrets.YT_TOKEN_SUMMER }}
           YT_TOKEN_PETS: ${{ secrets.YT_TOKEN_PETS }}
           YT_TOKEN_BREATHE: ${{ secrets.YT_TOKEN_BREATHE }}
+          YT_TOKEN_COSMIC: ${{ secrets.YT_TOKEN_COSMIC }}
+          YT_TOKEN_OCEAN: ${{ secrets.YT_TOKEN_OCEAN }}
+          YT_TOKEN_MEDITERRANEAN: ${{ secrets.YT_TOKEN_MEDITERRANEAN }}
+          YT_TOKEN_RAIN: ${{ secrets.YT_TOKEN_RAIN }}
         run: |
           python main.py ${{ matrix.channel }}
