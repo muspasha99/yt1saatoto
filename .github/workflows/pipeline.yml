@@ -102,6 +102,8 @@ jobs:
           DRIVE_TOKEN_HESAP97: ${{ secrets.DRIVE_TOKEN_HESAP97 }}
           DRIVE_TOKEN_HESAP99: ${{ secrets.DRIVE_TOKEN_HESAP99 }}
           DRIVE_TOKEN_HESAP87: ${{ secrets.DRIVE_TOKEN_HESAP87 }}
+          DRIVE_TOKEN_HESAP100: ${{ secrets.DRIVE_TOKEN_HESAP100 }}
+          DRIVE_TOKEN_HESAP101: ${{ secrets.DRIVE_TOKEN_HESAP101 }}
           # YouTube tokens (8 kanal)
           YT_TOKEN_CODING: ${{ secrets.YT_TOKEN_CODING }}
           YT_TOKEN_ZEN: ${{ secrets.YT_TOKEN_ZEN }}
