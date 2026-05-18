@@ -154,25 +154,48 @@ def upload_complete(youtube_token_json, video_path, thumbnail_path, title, descr
         print(f"⚠️  Thumbnail yüklenemedi (video yüklendi ama): {e}")
 
 def upload_short(youtube_token_json, video_path, title, description,
-                 tags, long_video_id, expected_channel_id=None):
+                 tags, long_video_id=None, expected_channel_id=None,
+                 channel_config=None):
     """
     YouTube Shorts videosu yükler.
     long_video_id: Uzun videonun ID'si — description'a link olarak eklenir.
+    channel_config: Kanal config'i — açıklama için kullanılır.
     """
-    # Uzun video linkini description'ın en üstüne ekle
-    long_video_url = f"https://youtube.com/watch?v={long_video_id}"
-    full_description = (
-        f"🎵 Full 1-Hour Version ↓\n"
-        f"{long_video_url}\n\n"
-        f"{description}"
-    )
+    # Açıklama oluştur
+    desc_parts = []
+
+    # Uzun video linki (varsa)
+    if long_video_id:
+        long_video_url = f"https://youtube.com/watch?v={long_video_id}"
+        desc_parts.append(f"🎵 Full 1-Hour Version ↓\n{long_video_url}")
+
+    # Kanal tanıtımı
+    if channel_config:
+        display_name = channel_config.get("display_name", "")
+        concept = channel_config.get("concept", "")
+        desc_parts.append(
+            f"🎧 {display_name}\n"
+            f"{concept.capitalize()} — full 1-hour mixes on our channel.\n"
+            f"Subscribe for daily music."
+        )
+    elif description:
+        desc_parts.append(description)
+
+    # Hashtag'ler
+    video_keywords = []
+    if channel_config:
+        video_keywords = channel_config.get("video_keywords", [])
+    hashtags = " ".join(f"#{kw.replace(' ', '')}" for kw in video_keywords[:5])
+    desc_parts.append(f"#shorts #youtubeshorts {hashtags}")
+
+    full_description = "\n\n".join(desc_parts)
 
     # Shorts için title #Shorts etiketi şart
     if "#Shorts" not in title and "#shorts" not in title:
         title = title + " #Shorts"
 
     # Tags'e shorts ekle
-    shorts_tags = ["shorts", "youtubeshorts"] + tags
+    shorts_tags = ["shorts", "youtubeshorts"] + (tags or [])
 
     result = upload_video(
         youtube_token_json=youtube_token_json,
