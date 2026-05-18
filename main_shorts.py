@@ -88,15 +88,10 @@ def run_shorts_pipeline(channel_code, count=3):
                     work_dir=short_work,
                 )
 
-                # YouTube'a yükle (long_video_id yok, description'a sadece kanal adı)
+                # YouTube'a yükle
                 short_title = f"{short_text} | {channel['display_name']} #Shorts"
-                short_desc = (
-                    f"{channel['concept'].capitalize()} — "
-                    f"Full 1-hour mixes on our channel.\n\n"
-                    f"#shorts #youtubeshorts"
-                )
 
-               youtube_uploader.upload_short(
+                youtube_uploader.upload_short(
                     youtube_token_json=yt_token,
                     video_path=short_output,
                     title=short_title,
@@ -106,7 +101,7 @@ def run_shorts_pipeline(channel_code, count=3):
                     expected_channel_id=channel["channel_id"],
                     channel_config=channel,
                 )
-            
+
                 success += 1
                 print(f"   ✅ Short {i+1} tamamlandı")
 
