@@ -130,6 +130,54 @@ def run_pipeline(channel_code):
         print(f"\n❌ HATA: {e}")
         print(traceback.format_exc())
         raise
+
+        # 7. ADIM: Günde 3 Short oluştur ve yükle
+        print("\n[7/7] 🎬 Shorts oluşturuluyor (3 adet)...")
+        long_video_id = result["video_id"]
+
+        for short_idx in range(3):
+            try:
+                # Gemini'dan kısa metin üret
+                short_text = gemini_handler.generate_short_text(
+                    gemini_key, channel, prompts
+                )
+
+                short_video_path = os.path.join(work_dir, f"short_{short_idx}.mp4")
+                short_work_dir = os.path.join(work_dir, f"short_work_{short_idx}")
+
+                # Short video oluştur
+                from modules import shorts_creator
+                shorts_creator.create_short(
+                    channel_code=channel_code,
+                    bg_video_path=bg_video,
+                    music_clip_path=audio_output,
+                    text=short_text,
+                    output_path=short_video_path,
+                    work_dir=short_work_dir,
+                )
+
+                # YouTube'a yükle
+                short_title = f"{short_text} | {channel['display_name']}"
+                short_description = (
+                    f"{channel['concept'].capitalize()} — "
+                    f"Full 1-hour mix in our channel."
+                )
+
+                youtube_uploader.upload_short(
+                    youtube_token_json=yt_token,
+                    video_path=short_video_path,
+                    title=short_title,
+                    description=short_description,
+                    tags=channel.get("video_keywords", []),
+                    long_video_id=long_video_id,
+                    expected_channel_id=channel["channel_id"],
+                )
+
+                print(f"   ✅ Short {short_idx + 1}/3 yüklendi")
+
+            except Exception as e:
+                print(f"   ⚠️ Short {short_idx + 1} başarısız: {e}")
+                continue  # 1 short başarısız olsa bile devam et
     
     finally:
         # Geçici dosyaları temizle
