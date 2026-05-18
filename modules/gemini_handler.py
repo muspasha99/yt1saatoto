@@ -144,3 +144,54 @@ Respond ONLY with valid JSON (no markdown, no explanation):
     print(f"   ✓ Etiket: {len(data['tags'])} adet")
 
     return data
+    
+def generate_short_text(api_key, channel_config, channel_prompts):
+    """
+    Shorts videosu için kısa, anlamlı bir cümle üretir.
+    Max 30 karakter. Her seferinde farklı çıkar.
+    """
+    configure_gemini(api_key)
+    model = genai.GenerativeModel("gemini-2.5-flash")
+
+    display_name = channel_config["display_name"]
+    concept = channel_config["concept"]
+    short_sentences = channel_config.get("short_sentences", [])
+    short_quotes = channel_config.get("short_quotes", [])
+
+    prompt = f"""You are writing overlay text for a YouTube Shorts video.
+
+Channel: {display_name}
+Concept: {concept}
+
+Reference sentences for this channel's vibe:
+{chr(10).join(f'- {s}' for s in short_sentences[:8])}
+
+Reference quotes:
+{chr(10).join(f'- {q}' for q in short_quotes[:4])}
+
+Your task:
+- Write ONE short text to display on screen
+- MAX 30 characters (count carefully)
+- Can be an original sentence OR a short famous quote
+- Must match the channel's vibe and concept
+- No hashtags, no emojis
+- Every time you are called, produce something DIFFERENT
+- Do NOT repeat the reference sentences word for word — draw inspiration
+
+Respond ONLY with the text itself. No quotes, no explanation, nothing else.
+Example good outputs:
+- "Lock in. No excuses."
+- "Breathe. Just breathe."
+- "Stars made you. Relax."
+- "Deep work. Deep life."
+"""
+
+    response = model.generate_content(prompt)
+    text = response.text.strip().strip('"').strip("'")
+
+    # 30 karakteri geçerse kırp
+    if len(text) > 30:
+        text = text[:30].rsplit(" ", 1)[0]
+
+    print(f"   ✏️  Short text: '{text}' ({len(text)} karakter)")
+    return text
