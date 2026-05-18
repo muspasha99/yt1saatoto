@@ -143,16 +143,6 @@ def _render_typewriter_frames(
         base = Image.new("RGBA", (w, h), (0, 0, 0, 0))
         draw = ImageDraw.Draw(base)
 
-        # Overlay: yazı bölgesine hafif karartma
-        overlay = Image.new("RGBA", (w, h), (0, 0, 0, 0))
-        ov_draw = ImageDraw.Draw(overlay)
-        ov_draw.rectangle(
-            [0, text_y - 20, w, text_y + text_h + 20],
-            fill=(0, 0, 0, overlay_alpha)
-        )
-        base = Image.alpha_composite(base, overlay)
-        draw = ImageDraw.Draw(base)
-
         if frame_idx < start_frame:
             frames.append(base)
             continue
