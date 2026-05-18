@@ -152,5 +152,39 @@ def upload_complete(youtube_token_json, video_path, thumbnail_path, title, descr
         upload_thumbnail(youtube_token_json, result["video_id"], thumbnail_path)
     except Exception as e:
         print(f"⚠️  Thumbnail yüklenemedi (video yüklendi ama): {e}")
+
+def upload_short(youtube_token_json, video_path, title, description,
+                 tags, long_video_id, expected_channel_id=None):
+    """
+    YouTube Shorts videosu yükler.
+    long_video_id: Uzun videonun ID'si — description'a link olarak eklenir.
+    """
+    # Uzun video linkini description'ın en üstüne ekle
+    long_video_url = f"https://youtube.com/watch?v={long_video_id}"
+    full_description = (
+        f"🎵 Full 1-Hour Version ↓\n"
+        f"{long_video_url}\n\n"
+        f"{description}"
+    )
+
+    # Shorts için title #Shorts etiketi şart
+    if "#Shorts" not in title and "#shorts" not in title:
+        title = title + " #Shorts"
+
+    # Tags'e shorts ekle
+    shorts_tags = ["shorts", "youtubeshorts"] + tags
+
+    result = upload_video(
+        youtube_token_json=youtube_token_json,
+        video_path=video_path,
+        title=title,
+        description=full_description,
+        tags=shorts_tags,
+        expected_channel_id=expected_channel_id,
+    )
+
+    print(f"✅ Short yüklendi: {result['url']}")
+    return result
+    
     
     return result
