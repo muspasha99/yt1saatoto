@@ -96,16 +96,17 @@ def run_shorts_pipeline(channel_code, count=3):
                     f"#shorts #youtubeshorts"
                 )
 
-                youtube_uploader.upload_short(
+               youtube_uploader.upload_short(
                     youtube_token_json=yt_token,
                     video_path=short_output,
                     title=short_title,
-                    description=short_desc,
+                    description=None,
                     tags=channel.get("video_keywords", []),
-                    long_video_id=None,  # standalone short
+                    long_video_id=None,
                     expected_channel_id=channel["channel_id"],
+                    channel_config=channel,
                 )
-
+            
                 success += 1
                 print(f"   ✅ Short {i+1} tamamlandı")
 
