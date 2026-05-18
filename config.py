@@ -1,5 +1,5 @@
 """
-Kanal ayarları - tüm 8 kanalın yapılandırması burada.
+Kanal ayarları - tüm 12 kanalın yapılandırması burada.
 """
 
 CHANNELS = {
@@ -33,6 +33,22 @@ CHANNELS = {
         "thumbnail_style": "text",
         "thumbnail_font": "SpaceGrotesk-Bold.ttf",
         "thumbnail_texts": ["DEEP FOCUS", "CODE MODE", "FOCUS", "STUDY SESSION", "LOCK IN"],
+        "short_sentences": [
+            "Your best code is written in silence.",
+            "Coffee. Lo-fi. Terminal. Repeat.",
+            "Deep work begins when world goes quiet.",
+            "2 AM and you're in the zone.",
+            "Focus is not a talent. It's a habit.",
+            "Debug mode: music on, world off.",
+            "Ship it. But first, lock in.",
+            "One tab open. Zero distractions.",
+        ],
+        "short_quotes": [
+            "First, solve the problem. — John Johnson",
+            "Simplicity is efficiency. — Austin Freeman",
+            "Focus on what you won't do. — Carmack",
+            "The scariest moment is before you start. — King",
+        ],
     },
     "zen": {
         "display_name": "Zen Yoga Music",
@@ -64,6 +80,22 @@ CHANNELS = {
         "thumbnail_style": "text",
         "thumbnail_font": "CormorantGaramond-Bold.ttf",
         "thumbnail_texts": ["Tibetan Bowls", "Inner Peace", "Zen Yoga", "Deep Calm", "Morning Zen"],
+        "short_sentences": [
+            "Still the mind. Free the soul.",
+            "Breathe in peace. Breathe out tension.",
+            "Your mat is your sanctuary.",
+            "Peace is not found. It is practiced.",
+            "Soften. Surrender. Release.",
+            "Return to yourself, again and again.",
+            "There is nowhere to go. You are home.",
+            "In silence, you are whole.",
+        ],
+        "short_quotes": [
+            "Peace comes from within. — Buddha",
+            "You are the sky. — Pema Chödrön",
+            "The quieter you become. — Ram Dass",
+            "Yoga is the journey to the self.",
+        ],
     },
     "vault": {
         "display_name": "Millionaire Vault",
@@ -91,11 +123,26 @@ CHANNELS = {
             "dark phonk gym workout 2026",
             "high value man motivation music",
             "boss energy dark trap mix",
-            
         ],
         "thumbnail_style": "text",
         "thumbnail_font": "BebasNeue-Regular.ttf",
         "thumbnail_texts": ["GRINDSET", "LOCK IN", "NO EXCUSES", "MILLIONAIRE"],
+        "short_sentences": [
+            "While they sleep, you grind.",
+            "Discipline is the new rich.",
+            "The weak rest. The hungry execute.",
+            "No shortcuts. No excuses. No limits.",
+            "Lock in. The world owes you nothing.",
+            "Pain today. Legacy tomorrow.",
+            "Outwork everyone. Every single day.",
+            "Most want success. Few pay for it.",
+        ],
+        "short_quotes": [
+            "Discipline equals freedom. — Jocko",
+            "Pray for strength. — Bruce Lee",
+            "He who has a why. — Nietzsche",
+            "Move mountains. Start small. — Confucius",
+        ],
     },
     "chakra": {
         "display_name": "Chakra Healing Meditation",
@@ -123,11 +170,26 @@ CHANNELS = {
             "chakra alignment morning meditation",
             "balancing chakras for beginners guided",
             "deep chakra cleansing solfeggio frequencies",
-            
         ],
         "thumbnail_style": "text",
         "thumbnail_font": "Marcellus-Regular.ttf",
         "thumbnail_texts": ["Chakra Healing", "528 Hz", "432 Hz", "Frequency Healing", "Sacred Sounds"],
+        "short_sentences": [
+            "528 Hz — frequency of love.",
+            "Your energy centers align now.",
+            "Sound is the oldest medicine.",
+            "Vibrate higher. Always.",
+            "Balance begins from inside.",
+            "Ancient frequencies. Modern healing.",
+            "Release what blocks you.",
+            "You are energy. You are light.",
+        ],
+        "short_quotes": [
+            "Energy, frequency, vibration. — Tesla",
+            "The wound is where light enters. — Rumi",
+            "Energy flows where attention goes.",
+            "Healing others heals yourself.",
+        ],
     },
     "beach": {
         "display_name": "Beach Club Beats",
@@ -155,11 +217,25 @@ CHANNELS = {
             "beach club afternoon house mix",
             "balearic beach house ibiza vibes",
             "tropical house workout summer mix",
-            
         ],
         "thumbnail_style": "clean",
         "thumbnail_font": "",
         "thumbnail_texts": [],
+        "short_sentences": [
+            "The ocean called. You answered.",
+            "Salt air. Bare feet. Good music.",
+            "Every wave is an invitation.",
+            "Blue water. Warmer music.",
+            "No plans. Just music and ocean.",
+            "Life is short. The playlist is long.",
+            "Sand in toes. Bass in soul.",
+            "Summer doesn't end here.",
+        ],
+        "short_quotes": [
+            "Live in the sunshine. — Emerson",
+            "The sea casts its spell. — Cousteau",
+            "I am only a child on the beach. — Newton",
+        ],
     },
     "summer": {
         "display_name": "Summer House Music",
@@ -187,11 +263,25 @@ CHANNELS = {
             "cote dazur summer house mix",
             "elegant deep house dinner party",
             "mediterranean villa chillout 2026",
-            
         ],
         "thumbnail_style": "clean",
         "thumbnail_font": "",
         "thumbnail_texts": [],
+        "short_sentences": [
+            "The golden hour needs a golden track.",
+            "Luxury is not a place. It's a feeling.",
+            "Wine. View. Music. In that order.",
+            "Rooftop. Skyline. Volume up.",
+            "Slow down. This is the good part.",
+            "Time moves differently here.",
+            "Summer light. Summer soul.",
+            "Mediterranean air hits different.",
+        ],
+        "short_quotes": [
+            "To travel is to live. — Andersen",
+            "Fill life with experiences.",
+            "The world is a book. — Augustine",
+        ],
     },
     "pets": {
         "display_name": "Relaxing Dogs and Cats",
@@ -219,11 +309,25 @@ CHANNELS = {
             "calm music for rescue dogs adoption",
             "music for dogs while owner away",
             "soothing music for anxious cats vet",
-            
         ],
         "thumbnail_style": "text",
         "thumbnail_font": "Nunito-ExtraBold.ttf",
         "thumbnail_texts": ["Calm Pets", "Dog Relax", "Cat Sleep", "Home Alone", "Anxious Pets"],
+        "short_sentences": [
+            "You're not alone, buddy.",
+            "Calm vibes for your best friend.",
+            "They can hear the love.",
+            "Soft music. Safe space.",
+            "For the ones who wait by the door.",
+            "Home alone? Not anymore.",
+            "They give everything. Give them this.",
+            "Safe sounds for sensitive souls.",
+        ],
+        "short_quotes": [
+            "Animals ask no questions. — Eliot",
+            "Love an animal, wake your soul.",
+            "Treat animals well. — Gandhi",
+        ],
     },
     "breathe": {
         "display_name": "Breathe and Chill",
@@ -251,11 +355,26 @@ CHANNELS = {
             "breathing exercise for anxiety attack",
             "morning breathing meditation energy",
             "evening breathing meditation deep sleep",
-            
         ],
         "thumbnail_style": "text",
         "thumbnail_font": "Quicksand-Bold.ttf",
         "thumbnail_texts": ["Breathe", "4-7-8", "Deep Sleep", "Just Breathe", "Calm"],
+        "short_sentences": [
+            "Inhale 4. Hold 7. Exhale 8.",
+            "Your breath is your power.",
+            "Slow down. The world can wait.",
+            "Anxiety lies. Breath tells truth.",
+            "Right here. Right now. Breathe.",
+            "Sleep is medicine.",
+            "One breath at a time.",
+            "You are safe. You are calm.",
+        ],
+        "short_quotes": [
+            "Breath bridges life and mind. — Thich",
+            "Unplug for a few minutes. — Lamott",
+            "Stillness is a sanctuary. — Hesse",
+            "Rest is not idleness. — Lubbock",
+        ],
     },
     "cosmic": {
         "display_name": "Cosmic Chill Sessions",
@@ -287,6 +406,21 @@ CHANNELS = {
         "thumbnail_style": "text",
         "thumbnail_font": "SpaceGrotesk-Bold.ttf",
         "thumbnail_texts": ["COSMIC CHILL", "DEEP SPACE", "GALAXY VIBES", "UNIVERSE", "STELLAR"],
+        "short_sentences": [
+            "You are made of stardust.",
+            "The universe is 13.8B years old. Relax.",
+            "Stars don't rush. Neither should you.",
+            "Float between galaxies.",
+            "Cosmic vibes. Terrestrial mind.",
+            "The universe doesn't rush.",
+            "A star exploded to make you.",
+            "Travel light years. Stay seated.",
+        ],
+        "short_quotes": [
+            "We are made of star-stuff. — Sagan",
+            "Universe owes you nothing. — Tyson",
+            "Are we alone? — Arthur C. Clarke",
+        ],
     },
     "ocean": {
         "display_name": "Ocean Depths Meditation",
@@ -318,6 +452,21 @@ CHANNELS = {
         "thumbnail_style": "text",
         "thumbnail_font": "Marcellus-Regular.ttf",
         "thumbnail_texts": ["Deep Ocean", "Whale Songs", "Ocean Depths", "Underwater", "Sea Calm"],
+        "short_sentences": [
+            "Whale song: original meditation.",
+            "Sink deep. Resurface renewed.",
+            "Below the surface, all is still.",
+            "The deepest ocean is the quietest.",
+            "Ancient waters. Ancient peace.",
+            "Dive deep. Come up lighter.",
+            "The ocean breathes. Follow it.",
+            "Salt heals. Sound heals.",
+        ],
+        "short_quotes": [
+            "The sea casts its spell. — Cousteau",
+            "One drop holds all secrets. — Gibran",
+            "We are tied to the ocean. — JFK",
+        ],
     },
     "mediterranean": {
         "display_name": "Mediterranean Solstice",
@@ -349,6 +498,21 @@ CHANNELS = {
         "thumbnail_style": "text",
         "thumbnail_font": "CormorantGaramond-Bold.ttf",
         "thumbnail_texts": ["Mediterranean", "Solstice", "Aegean Chill", "Greek Vibes", "Sunset Lounge"],
+        "short_sentences": [
+            "Aegean breeze. Olive trees. This track.",
+            "Slow down. Mediterranean demands it.",
+            "Blue and white. Sun and sound.",
+            "Ancient light meets modern rhythm.",
+            "The best talks happen after sunset.",
+            "Opa. Volume up.",
+            "Mediterranean time is the only time.",
+            "Your table has a view. Ears have this.",
+        ],
+        "short_quotes": [
+            "Mediterranean: beginning of everything.",
+            "Strange towns. Best sensations. — Stark",
+            "Travel brings new vigor. — Seneca",
+        ],
     },
     "rain": {
         "display_name": "Urban Rain Vibes",
@@ -380,6 +544,21 @@ CHANNELS = {
         "thumbnail_style": "text",
         "thumbnail_font": "SpaceGrotesk-Bold.ttf",
         "thumbnail_texts": ["URBAN RAIN", "CITY VIBES", "RAINY NIGHT", "TOKYO RAIN", "CHILL RAIN"],
+        "short_sentences": [
+            "Rain on glass. Music in ears.",
+            "Tokyo, 2 AM. You know this.",
+            "Every raindrop: tiny percussion.",
+            "Urban souls find peace in rain.",
+            "Coffee. Window. Rain. Playlist.",
+            "Gray skies. Warm sounds.",
+            "Headphones in. World out. Rain on.",
+            "Some playlists are made for rain.",
+        ],
+        "short_quotes": [
+            "Sound of rain needs no translation. — Watts",
+            "Rainy days: tea and a book. — Watterson",
+            "Dance in the rain. — Greene",
+        ],
     },
 }
 
