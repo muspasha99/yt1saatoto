@@ -1,6 +1,9 @@
 """
-Sadece shorts pipeline'ını çalıştırır.
-Her short 8 saat arayla scheduled olarak yayınlanır (global kapsama).
+Bağımsız Shorts pipeline.
+- Drive'dan klip + müzik çeker
+- 3 short oluşturur
+- Kanalın en son uzun videosunu description'a ekler
+- 8 saat arayla scheduled yayınlar
 Kullanım: python main_shorts.py <kanal_kodu> <adet>
 Örnek: python main_shorts.py vault 3
 """
@@ -24,8 +27,7 @@ def _get_env(key):
 def _scheduled_times(count, interval_hours=8):
     """
     Şu andan itibaren count adet yayın zamanı üretir.
-    İlk video hemen değil, 10 dakika sonra başlar (YouTube'un işlemesi için).
-    Sonraki her video interval_hours saat sonra.
+    İlk video 10 dakika sonra, sonraki her video 8 saat sonra.
     """
     now = datetime.now(timezone.utc)
     times = []
@@ -48,7 +50,6 @@ def run_shorts_pipeline(channel_code, count=3):
     print(f"   Zaman: {datetime.now().isoformat()}")
     print("=" * 60)
 
-    # Yayın zamanlarını hesapla
     publish_times = _scheduled_times(count, interval_hours=8)
     for i, t in enumerate(publish_times):
         print(f"   Short {i+1} → {t.strftime('%Y-%m-%d %H:%M UTC')}")
@@ -66,8 +67,23 @@ def run_shorts_pipeline(channel_code, count=3):
         if not clips_folder_id:
             raise Exception(f"clips_folder_id eksik: {channel_code}")
 
-        # Müzik indir (tüm shortlar için 1 parça yeterli)
-        print("\n[1/3] 🎵 Müzik indiriliyor...")
+        # Kanalın en son uzun videosunu al
+        print("\n[1/3] 📺 Son uzun video aranıyor...")
+        try:
+            long_video_id = youtube_uploader.get_latest_video_id(
+                yt_token,
+                expected_channel_id=channel["channel_id"],
+            )
+            if long_video_id:
+                print(f"   ✅ Uzun video bulundu: https://youtu.be/{long_video_id}")
+            else:
+                print(f"   ⚠️ Uzun video bulunamadı, link eklenmeyecek")
+        except Exception as e:
+            print(f"   ⚠️ Uzun video alınamadı: {e}")
+            long_video_id = None
+
+        # Müzik indir
+        print("\n[2/3] 🎵 Müzik indiriliyor...")
         music_dir = os.path.join(work_dir, "music")
         os.makedirs(music_dir, exist_ok=True)
         track_paths = drive_handler.download_random_tracks(
@@ -78,7 +94,7 @@ def run_shorts_pipeline(channel_code, count=3):
         )
         music_path = track_paths[0]
 
-        print(f"\n[2/3] 🎞 Klipler indiriliyor + videolar oluşturuluyor...")
+        print(f"\n[3/3] 🎞 Klipler + videolar oluşturuluyor ({count} adet)...")
         success = 0
 
         for i in range(count):
@@ -115,7 +131,7 @@ def run_shorts_pipeline(channel_code, count=3):
                 short_title = f"{short_text} | {channel['display_name']}"
                 publish_at = publish_times[i]
 
-                print(f"   📤 Yükleniyor → yayın: {publish_at.strftime('%H:%M UTC')}")
+                print(f"   📤 Yükleniyor → yayın: {publish_at.strftime('%Y-%m-%d %H:%M UTC')}")
 
                 youtube_uploader.upload_short(
                     youtube_token_json=yt_token,
@@ -123,7 +139,7 @@ def run_shorts_pipeline(channel_code, count=3):
                     title=short_title,
                     description=None,
                     tags=channel.get("video_keywords", []),
-                    long_video_id=None,
+                    long_video_id=long_video_id,
                     expected_channel_id=channel["channel_id"],
                     channel_config=channel,
                     scheduled_at=publish_at,
