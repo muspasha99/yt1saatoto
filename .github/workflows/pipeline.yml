@@ -141,6 +141,8 @@ jobs:
         if: steps.check.outputs.run == 'true'
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GEMINI_API_KEY_2: ${{ secrets.GEMINI_API_KEY_2 }}
+          GEMINI_API_KEY_3: ${{ secrets.GEMINI_API_KEY_3 }}
           DRIVE_TOKEN_HESAP98: ${{ secrets.DRIVE_TOKEN_HESAP98 }}
           DRIVE_TOKEN_HESAP97: ${{ secrets.DRIVE_TOKEN_HESAP97 }}
           DRIVE_TOKEN_HESAP99: ${{ secrets.DRIVE_TOKEN_HESAP99 }}
