@@ -1,6 +1,7 @@
 """
 Gemini API ile başlık, açıklama ve etiket üretir.
 SEO odaklı + thumbnail görsel analizi.
+3 API key desteği: biri rate limit verirse diğerine geçer.
 """
 import os
 import time
@@ -11,8 +12,53 @@ import re
 import random
 
 
-def configure_gemini(api_key):
-    genai.configure(api_key=api_key)
+def _get_api_keys():
+    """Mevcut Gemini API key'lerini döner."""
+    keys = []
+    for env_var in ["GEMINI_API_KEY", "GEMINI_API_KEY_2", "GEMINI_API_KEY_3"]:
+        key = os.environ.get(env_var)
+        if key:
+            keys.append(key)
+    if not keys:
+        raise Exception("Hiçbir GEMINI_API_KEY bulunamadı!")
+    return keys
+
+
+def _call_gemini(content_parts, max_retries_per_key=2):
+    """
+    Gemini API çağrısı yapar.
+    Rate limit hatalarında önce bekler, sonra diğer key'e geçer.
+    """
+    keys = _get_api_keys()
+    print(f"   🔑 {len(keys)} Gemini key mevcut")
+
+    last_error = None
+
+    for key_idx, api_key in enumerate(keys):
+        genai.configure(api_key=api_key)
+        model = genai.GenerativeModel("gemini-2.5-flash")
+
+        for attempt in range(max_retries_per_key):
+            try:
+                response = model.generate_content(content_parts)
+                if key_idx > 0:
+                    print(f"   ✅ Key {key_idx + 1} ile başarılı")
+                return response
+            except Exception as e:
+                err = str(e)
+                if "429" in err or "quota" in err.lower() or "rate" in err.lower():
+                    if attempt < max_retries_per_key - 1:
+                        wait = 30 * (attempt + 1)
+                        print(f"   ⏳ Key {key_idx + 1} rate limit, {wait}s bekleniyor...")
+                        time.sleep(wait)
+                    else:
+                        print(f"   ⚠️ Key {key_idx + 1} tükendi, sonraki key deneniyor...")
+                        last_error = e
+                        break
+                else:
+                    raise
+
+    raise Exception(f"Tüm Gemini key'leri başarısız: {last_error}")
 
 
 def _clean_json_response(text):
@@ -22,33 +68,11 @@ def _clean_json_response(text):
     return text.strip()
 
 
-def _call_gemini(model, content_parts, max_retries=3):
-    """
-    Gemini API çağrısı yapar. Rate limit (429) hatalarında bekleyip tekrar dener.
-    """
-    for attempt in range(max_retries):
-        try:
-            response = model.generate_content(content_parts)
-            return response
-        except Exception as e:
-            err = str(e)
-            if "429" in err or "quota" in err.lower() or "rate" in err.lower():
-                wait = 60 * (attempt + 1)  # 60s, 120s, 180s
-                print(f"   ⏳ Gemini rate limit, {wait} sn bekleniyor... (deneme {attempt + 1}/{max_retries})")
-                time.sleep(wait)
-            else:
-                raise
-    raise Exception("Gemini rate limit aşıldı, tüm denemeler başarısız")
-
-
 def generate_metadata(api_key, channel_config, channel_prompts, thumbnail_path=None):
     """
     SEO odaklı metadata üretir. thumbnail_path verilirse
     Gemini görüntüyü de analiz eder, görsel uyumlu başlık yazar.
     """
-    configure_gemini(api_key)
-    model = genai.GenerativeModel("gemini-2.5-flash")
-
     display_name = channel_config["display_name"]
     concept = channel_config["concept"]
     seo_keywords = channel_config.get("seo_keywords", [])
@@ -127,7 +151,7 @@ Respond ONLY with valid JSON (no markdown, no explanation):
         content_parts.append(img)
     content_parts.append(prompt)
 
-    response = _call_gemini(model, content_parts)
+    response = _call_gemini(content_parts)
     raw_text = response.text
     cleaned = _clean_json_response(raw_text)
 
@@ -140,13 +164,11 @@ Respond ONLY with valid JSON (no markdown, no explanation):
     if not all(k in data for k in ["title", "description", "tags"]):
         raise Exception(f"Gemini eksik alan döndürdü: {data}")
 
-    # YouTube limitleri
     if len(data["title"]) > 100:
         data["title"] = data["title"][:97] + "..."
     if len(data["description"]) > 5000:
         data["description"] = data["description"][:4997] + "..."
 
-    # Hashtagler description'da yoksa otomatik ekle
     desc = data["description"]
     if "#" not in desc:
         hashtags = " ".join(f"#{tag.replace(' ', '')}" for tag in data["tags"][:5])
@@ -169,9 +191,6 @@ def generate_short_text(api_key, channel_config, channel_prompts):
     Shorts videosu için kısa, anlamlı bir cümle üretir.
     Max 30 karakter. Her seferinde farklı çıkar.
     """
-    configure_gemini(api_key)
-    model = genai.GenerativeModel("gemini-2.5-flash")
-
     display_name = channel_config["display_name"]
     concept = channel_config["concept"]
     short_sentences = channel_config.get("short_sentences", [])
@@ -209,7 +228,7 @@ Example good outputs:
     print(f"   ⏳ Rate limit önlemi: 15 sn bekleniyor...")
     time.sleep(15)
 
-    response = _call_gemini(model, [prompt])
+    response = _call_gemini([prompt])
     text = response.text.strip().strip('"').strip("'")
 
     if len(text) > 30:
