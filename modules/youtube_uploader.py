@@ -28,12 +28,10 @@ def _get_youtube_service(token_json_str):
 def upload_video(youtube_token_json, video_path, title, description, tags, expected_channel_id=None):
     """
     Bir videoyu YouTube'a yükler.
-    
     Returns: {"video_id": "xxx", "url": "https://youtu.be/xxx"}
     """
     service = _get_youtube_service(youtube_token_json)
-    
-    # Doğrulama: token doğru kanal için mi?
+
     if expected_channel_id:
         channels = service.channels().list(part="id", mine=True).execute()
         actual_id = channels["items"][0]["id"]
@@ -41,13 +39,13 @@ def upload_video(youtube_token_json, video_path, title, description, tags, expec
             raise Exception(
                 f"Token yanlış kanala ait! Beklenen: {expected_channel_id}, gelen: {actual_id}"
             )
-    
+
     body = {
         "snippet": {
             "title": title,
             "description": description,
             "tags": tags,
-            "categoryId": "10",  # Music kategorisi
+            "categoryId": "10",
             "defaultLanguage": "en",
             "defaultAudioLanguage": "en",
         },
@@ -56,28 +54,28 @@ def upload_video(youtube_token_json, video_path, title, description, tags, expec
             "selfDeclaredMadeForKids": False,
         },
     }
-    
+
     media = MediaFileUpload(
         video_path,
         chunksize=10 * 1024 * 1024,
         resumable=True,
         mimetype="video/mp4",
     )
-    
+
     print(f"📤 YouTube'a yükleniyor: {title}")
     print(f"   Dosya boyutu: {os.path.getsize(video_path) / (1024*1024):.1f} MB")
-    
+
     request = service.videos().insert(
         part=",".join(body.keys()),
         body=body,
         media_body=media,
     )
-    
+
     response = None
     last_progress = -1
     retry_count = 0
     max_retries = 3
-    
+
     while response is None:
         try:
             status, response = request.next_chunk()
@@ -102,12 +100,12 @@ def upload_video(youtube_token_json, video_path, title, description, tags, expec
                 time.sleep(wait)
                 continue
             raise
-    
-    print()  # progress satırından sonra newline
-    
+
+    print()
+
     video_id = response["id"]
     print(f"✅ Video yüklendi: https://youtu.be/{video_id}")
-    
+
     return {
         "video_id": video_id,
         "url": f"https://youtu.be/{video_id}",
@@ -117,16 +115,16 @@ def upload_video(youtube_token_json, video_path, title, description, tags, expec
 def upload_thumbnail(youtube_token_json, video_id, thumbnail_path):
     """Yüklenmiş videoya thumbnail ekler."""
     service = _get_youtube_service(youtube_token_json)
-    
+
     print(f"🖼️  Thumbnail yükleniyor...")
-    
+
     media = MediaFileUpload(thumbnail_path, mimetype="image/jpeg")
-    
+
     request = service.thumbnails().set(
         videoId=video_id,
         media_body=media,
     )
-    
+
     request.execute()
     print(f"✅ Thumbnail eklendi")
 
@@ -144,21 +142,24 @@ def upload_complete(youtube_token_json, video_path, thumbnail_path, title, descr
         tags,
         expected_channel_id,
     )
-    
-    # Thumbnail yüklemeden önce kısa bekle (YouTube hazır olsun)
+
     time.sleep(3)
-    
+
     try:
         upload_thumbnail(youtube_token_json, result["video_id"], thumbnail_path)
     except Exception as e:
         print(f"⚠️  Thumbnail yüklenemedi (video yüklendi ama): {e}")
-        return result
+
+    return result
+
 
 def upload_short(youtube_token_json, video_path, title, description,
                  tags, long_video_id=None, expected_channel_id=None,
                  channel_config=None, scheduled_at=None):
-
-    # Açıklama oluştur
+    """
+    YouTube Shorts videosu yükler.
+    scheduled_at: datetime objesi — o saatte otomatik yayınlanır.
+    """
     desc_parts = []
 
     if long_video_id:
@@ -187,7 +188,6 @@ def upload_short(youtube_token_json, video_path, title, description,
 
     shorts_tags = ["shorts", "youtubeshorts"] + (tags or [])
 
-    # Scheduled mi yoksa hemen mi?
     if scheduled_at:
         privacy_status = "private"
         publish_at = scheduled_at.strftime("%Y-%m-%dT%H:%M:%S.000Z")
@@ -212,7 +212,6 @@ def upload_short(youtube_token_json, video_path, title, description,
         },
     }
 
-    # Scheduled ise publishAt ekle
     if publish_at:
         body["status"]["publishAt"] = publish_at
 
@@ -264,5 +263,3 @@ def upload_short(youtube_token_json, video_path, title, description,
     print(f"✅ Short yüklendi: https://youtu.be/{video_id}")
 
     return {"video_id": video_id, "url": f"https://youtu.be/{video_id}"}
-    
-    return result
