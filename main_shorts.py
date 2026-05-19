@@ -1,5 +1,6 @@
 """
 Sadece shorts pipeline'ını çalıştırır.
+Her short 8 saat arayla scheduled olarak yayınlanır (global kapsama).
 Kullanım: python main_shorts.py <kanal_kodu> <adet>
 Örnek: python main_shorts.py vault 3
 """
@@ -7,7 +8,7 @@ import os
 import sys
 import shutil
 import traceback
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 
 from config import CHANNELS, CHANNEL_PROMPTS, TEMP_DIR
 from modules import drive_handler, gemini_handler, shorts_creator, youtube_uploader
@@ -20,6 +21,20 @@ def _get_env(key):
     return val
 
 
+def _scheduled_times(count, interval_hours=8):
+    """
+    Şu andan itibaren count adet yayın zamanı üretir.
+    İlk video hemen değil, 10 dakika sonra başlar (YouTube'un işlemesi için).
+    Sonraki her video interval_hours saat sonra.
+    """
+    now = datetime.now(timezone.utc)
+    times = []
+    for i in range(count):
+        publish_at = now + timedelta(minutes=10) + timedelta(hours=i * interval_hours)
+        times.append(publish_at)
+    return times
+
+
 def run_shorts_pipeline(channel_code, count=3):
     if channel_code not in CHANNELS:
         raise Exception(f"Bilinmeyen kanal: {channel_code}")
@@ -29,9 +44,14 @@ def run_shorts_pipeline(channel_code, count=3):
 
     print("=" * 60)
     print(f"🎬 SHORTS PIPELINE: {channel['display_name']}")
-    print(f"   Adet: {count}")
+    print(f"   Adet: {count} | Aralık: 8 saat")
     print(f"   Zaman: {datetime.now().isoformat()}")
     print("=" * 60)
+
+    # Yayın zamanlarını hesapla
+    publish_times = _scheduled_times(count, interval_hours=8)
+    for i, t in enumerate(publish_times):
+        print(f"   Short {i+1} → {t.strftime('%Y-%m-%d %H:%M UTC')}")
 
     work_dir = os.path.join(TEMP_DIR, f"{channel_code}_shorts")
     os.makedirs(work_dir, exist_ok=True)
@@ -42,17 +62,12 @@ def run_shorts_pipeline(channel_code, count=3):
         drive_token = _get_env(f"DRIVE_TOKEN_{drive_account.upper()}")
         yt_token = _get_env(f"YT_TOKEN_{channel_code.upper()}")
 
-        # 1. Drive'dan arka plan klibi indir
-        print("\n[1/3] 🎞 Arka plan klibi indiriliyor...")
-        bg_video = os.path.join(work_dir, "background.mp4")
         clips_folder_id = channel.get("clips_folder_id", "")
         if not clips_folder_id:
             raise Exception(f"clips_folder_id eksik: {channel_code}")
 
-        drive_handler.download_random_video(drive_token, clips_folder_id, bg_video)
-
-        # 2. Drive'dan müzik indir
-        print("\n[2/3] 🎵 Müzik indiriliyor...")
+        # Müzik indir (tüm shortlar için 1 parça yeterli)
+        print("\n[1/3] 🎵 Müzik indiriliyor...")
         music_dir = os.path.join(work_dir, "music")
         os.makedirs(music_dir, exist_ok=True)
         track_paths = drive_handler.download_random_tracks(
@@ -63,13 +78,21 @@ def run_shorts_pipeline(channel_code, count=3):
         )
         music_path = track_paths[0]
 
-        # 3. Her short için döngü
-        print(f"\n[3/3] 🎬 {count} shorts oluşturuluyor...")
+        print(f"\n[2/3] 🎞 Klipler indiriliyor + videolar oluşturuluyor...")
         success = 0
 
         for i in range(count):
             print(f"\n   --- Short {i+1}/{count} ---")
             try:
+                # Her short için farklı klip indir
+                short_bg = os.path.join(work_dir, f"bg_{i}.mp4")
+                print(f"   📥 Klip indiriliyor...")
+                drive_handler.download_random_video(
+                    drive_token,
+                    clips_folder_id,
+                    short_bg,
+                )
+
                 # Gemini'dan kısa metin üret
                 short_text = gemini_handler.generate_short_text(
                     gemini_key, channel, prompts
@@ -81,15 +104,18 @@ def run_shorts_pipeline(channel_code, count=3):
                 # Short video oluştur
                 shorts_creator.create_short(
                     channel_code=channel_code,
-                    bg_video_path=bg_video,
+                    bg_video_path=short_bg,
                     music_clip_path=music_path,
                     text=short_text,
                     output_path=short_output,
                     work_dir=short_work,
                 )
 
-                # YouTube'a yükle
-                short_title = f"{short_text} | {channel['display_name']} #Shorts"
+                # YouTube'a scheduled olarak yükle
+                short_title = f"{short_text} | {channel['display_name']}"
+                publish_at = publish_times[i]
+
+                print(f"   📤 Yükleniyor → yayın: {publish_at.strftime('%H:%M UTC')}")
 
                 youtube_uploader.upload_short(
                     youtube_token_json=yt_token,
@@ -100,17 +126,18 @@ def run_shorts_pipeline(channel_code, count=3):
                     long_video_id=None,
                     expected_channel_id=channel["channel_id"],
                     channel_config=channel,
+                    scheduled_at=publish_at,
                 )
 
                 success += 1
-                print(f"   ✅ Short {i+1} tamamlandı")
+                print(f"   ✅ Short {i+1} yüklendi → {publish_at.strftime('%Y-%m-%d %H:%M UTC')}")
 
             except Exception as e:
                 print(f"   ❌ Short {i+1} başarısız: {e}")
                 print(traceback.format_exc())
                 continue
 
-        print(f"\n🎉 Tamamlandı: {success}/{count} shorts yüklendi")
+        print(f"\n🎉 Tamamlandı: {success}/{count} shorts zamanlandı")
 
     except Exception as e:
         print(f"\n❌ HATA: {e}")
