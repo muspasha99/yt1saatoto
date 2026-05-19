@@ -1,17 +1,16 @@
 """
 Bağımsız Shorts pipeline.
 - Drive'dan klip + müzik çeker
-- 3 short oluşturur
+- Short oluşturur ve direkt public olarak yayınlar
 - Kanalın en son uzun videosunu description'a ekler
-- 8 saat arayla scheduled yayınlar
 Kullanım: python main_shorts.py <kanal_kodu> <adet>
-Örnek: python main_shorts.py vault 3
+Örnek: python main_shorts.py vault 1
 """
 import os
 import sys
 import shutil
 import traceback
-from datetime import datetime, timezone, timedelta
+from datetime import datetime
 
 from config import CHANNELS, CHANNEL_PROMPTS, TEMP_DIR
 from modules import drive_handler, gemini_handler, shorts_creator, youtube_uploader
@@ -24,20 +23,7 @@ def _get_env(key):
     return val
 
 
-def _scheduled_times(count, interval_hours=8):
-    """
-    Şu andan itibaren count adet yayın zamanı üretir.
-    İlk video 10 dakika sonra, sonraki her video 8 saat sonra.
-    """
-    now = datetime.now(timezone.utc)
-    times = []
-    for i in range(count):
-        publish_at = now + timedelta(minutes=10) + timedelta(hours=i * interval_hours)
-        times.append(publish_at)
-    return times
-
-
-def run_shorts_pipeline(channel_code, count=3):
+def run_shorts_pipeline(channel_code, count=1):
     if channel_code not in CHANNELS:
         raise Exception(f"Bilinmeyen kanal: {channel_code}")
 
@@ -46,13 +32,9 @@ def run_shorts_pipeline(channel_code, count=3):
 
     print("=" * 60)
     print(f"🎬 SHORTS PIPELINE: {channel['display_name']}")
-    print(f"   Adet: {count} | Aralık: 8 saat")
+    print(f"   Adet: {count}")
     print(f"   Zaman: {datetime.now().isoformat()}")
     print("=" * 60)
-
-    publish_times = _scheduled_times(count, interval_hours=8)
-    for i, t in enumerate(publish_times):
-        print(f"   Short {i+1} → {t.strftime('%Y-%m-%d %H:%M UTC')}")
 
     work_dir = os.path.join(TEMP_DIR, f"{channel_code}_shorts")
     os.makedirs(work_dir, exist_ok=True)
@@ -75,7 +57,7 @@ def run_shorts_pipeline(channel_code, count=3):
                 expected_channel_id=channel["channel_id"],
             )
             if long_video_id:
-                print(f"   ✅ Uzun video bulundu: https://youtu.be/{long_video_id}")
+                print(f"   ✅ Uzun video: https://youtu.be/{long_video_id}")
             else:
                 print(f"   ⚠️ Uzun video bulunamadı, link eklenmeyecek")
         except Exception as e:
@@ -94,7 +76,7 @@ def run_shorts_pipeline(channel_code, count=3):
         )
         music_path = track_paths[0]
 
-        print(f"\n[3/3] 🎞 Klipler + videolar oluşturuluyor ({count} adet)...")
+        print(f"\n[3/3] 🎞 Short oluşturuluyor ({count} adet)...")
         success = 0
 
         for i in range(count):
@@ -127,11 +109,10 @@ def run_shorts_pipeline(channel_code, count=3):
                     work_dir=short_work,
                 )
 
-                # YouTube'a scheduled olarak yükle
+                # YouTube'a direkt public olarak yükle
                 short_title = f"{short_text} | {channel['display_name']}"
-                publish_at = publish_times[i]
 
-                print(f"   📤 Yükleniyor → yayın: {publish_at.strftime('%Y-%m-%d %H:%M UTC')}")
+                print(f"   📤 Yükleniyor → direkt yayın")
 
                 youtube_uploader.upload_short(
                     youtube_token_json=yt_token,
@@ -142,18 +123,18 @@ def run_shorts_pipeline(channel_code, count=3):
                     long_video_id=long_video_id,
                     expected_channel_id=channel["channel_id"],
                     channel_config=channel,
-                    scheduled_at=publish_at,
+                    scheduled_at=None,
                 )
 
                 success += 1
-                print(f"   ✅ Short {i+1} yüklendi → {publish_at.strftime('%Y-%m-%d %H:%M UTC')}")
+                print(f"   ✅ Short {i+1} yayınlandı")
 
             except Exception as e:
                 print(f"   ❌ Short {i+1} başarısız: {e}")
                 print(traceback.format_exc())
                 continue
 
-        print(f"\n🎉 Tamamlandı: {success}/{count} shorts zamanlandı")
+        print(f"\n🎉 Tamamlandı: {success}/{count} shorts yayınlandı")
 
     except Exception as e:
         print(f"\n❌ HATA: {e}")
@@ -176,6 +157,6 @@ if __name__ == "__main__":
         sys.exit(1)
 
     channel_code = sys.argv[1].lower().strip()
-    count = int(sys.argv[2]) if len(sys.argv) > 2 else 3
+    count = int(sys.argv[2]) if len(sys.argv) > 2 else 1
 
     run_shorts_pipeline(channel_code, count)
