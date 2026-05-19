@@ -3,6 +3,7 @@ Gemini API ile başlık, açıklama ve etiket üretir.
 SEO odaklı + thumbnail görsel analizi.
 """
 import os
+import time
 import google.generativeai as genai
 import PIL.Image
 import json
@@ -19,6 +20,25 @@ def _clean_json_response(text):
     text = re.sub(r"^```(?:json)?\s*", "", text)
     text = re.sub(r"\s*```$", "", text)
     return text.strip()
+
+
+def _call_gemini(model, content_parts, max_retries=3):
+    """
+    Gemini API çağrısı yapar. Rate limit (429) hatalarında bekleyip tekrar dener.
+    """
+    for attempt in range(max_retries):
+        try:
+            response = model.generate_content(content_parts)
+            return response
+        except Exception as e:
+            err = str(e)
+            if "429" in err or "quota" in err.lower() or "rate" in err.lower():
+                wait = 60 * (attempt + 1)  # 60s, 120s, 180s
+                print(f"   ⏳ Gemini rate limit, {wait} sn bekleniyor... (deneme {attempt + 1}/{max_retries})")
+                time.sleep(wait)
+            else:
+                raise
+    raise Exception("Gemini rate limit aşıldı, tüm denemeler başarısız")
 
 
 def generate_metadata(api_key, channel_config, channel_prompts, thumbnail_path=None):
@@ -42,7 +62,6 @@ def generate_metadata(api_key, channel_config, channel_prompts, thumbnail_path=N
     title_style = channel_prompts["title_style"]
     description_style = channel_prompts["description_style"]
 
-    # Thumbnail varsa görsel bağlam ekle
     has_image = thumbnail_path and os.path.exists(thumbnail_path)
     if has_image:
         image_instruction = """
@@ -102,14 +121,13 @@ Respond ONLY with valid JSON (no markdown, no explanation):
     if has_image:
         print(f"   🖼️  Thumbnail görsel analizi aktif")
 
-    # İçerik listesi oluştur (resim varsa başa ekle)
     content_parts = []
     if has_image:
         img = PIL.Image.open(thumbnail_path)
         content_parts.append(img)
     content_parts.append(prompt)
 
-    response = model.generate_content(content_parts)
+    response = _call_gemini(model, content_parts)
     raw_text = response.text
     cleaned = _clean_json_response(raw_text)
 
@@ -122,12 +140,12 @@ Respond ONLY with valid JSON (no markdown, no explanation):
     if not all(k in data for k in ["title", "description", "tags"]):
         raise Exception(f"Gemini eksik alan döndürdü: {data}")
 
-   # YouTube limitleri
+    # YouTube limitleri
     if len(data["title"]) > 100:
         data["title"] = data["title"][:97] + "..."
     if len(data["description"]) > 5000:
         data["description"] = data["description"][:4997] + "..."
-    
+
     # Hashtagler description'da yoksa otomatik ekle
     desc = data["description"]
     if "#" not in desc:
@@ -144,7 +162,8 @@ Respond ONLY with valid JSON (no markdown, no explanation):
     print(f"   ✓ Etiket: {len(data['tags'])} adet")
 
     return data
-    
+
+
 def generate_short_text(api_key, channel_config, channel_prompts):
     """
     Shorts videosu için kısa, anlamlı bir cümle üretir.
@@ -186,10 +205,13 @@ Example good outputs:
 - "Deep work. Deep life."
 """
 
-    response = model.generate_content(prompt)
+    # Short'lar arası 15 saniye bekle (rate limit önlemi)
+    print(f"   ⏳ Rate limit önlemi: 15 sn bekleniyor...")
+    time.sleep(15)
+
+    response = _call_gemini(model, [prompt])
     text = response.text.strip().strip('"').strip("'")
 
-    # 30 karakteri geçerse kırp
     if len(text) > 30:
         text = text[:30].rsplit(" ", 1)[0]
 
