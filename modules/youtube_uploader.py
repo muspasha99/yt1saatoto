@@ -152,6 +152,7 @@ def upload_complete(youtube_token_json, video_path, thumbnail_path, title, descr
         upload_thumbnail(youtube_token_json, result["video_id"], thumbnail_path)
     except Exception as e:
         print(f"⚠️  Thumbnail yüklenemedi (video yüklendi ama): {e}")
+        return result
 
 def upload_short(youtube_token_json, video_path, title, description,
                  tags, long_video_id=None, expected_channel_id=None,
