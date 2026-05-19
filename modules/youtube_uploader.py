@@ -263,3 +263,26 @@ def upload_short(youtube_token_json, video_path, title, description,
     print(f"✅ Short yüklendi: https://youtu.be/{video_id}")
 
     return {"video_id": video_id, "url": f"https://youtu.be/{video_id}"}
+
+
+def get_latest_video_id(youtube_token_json, expected_channel_id=None):
+    """
+    Kanalın en son yüklenen videosunun ID'sini döner.
+    """
+    service = _get_youtube_service(youtube_token_json)
+
+    channels = service.channels().list(part="contentDetails", mine=True).execute()
+    uploads_playlist_id = channels["items"][0]["contentDetails"]["relatedPlaylists"]["uploads"]
+
+    playlist_items = service.playlistItems().list(
+        part="contentDetails",
+        playlistId=uploads_playlist_id,
+        maxResults=1,
+    ).execute()
+
+    if not playlist_items.get("items"):
+        return None
+
+    video_id = playlist_items["items"][0]["contentDetails"]["videoId"]
+    print(f"   📺 En son video: https://youtu.be/{video_id}")
+    return video_id
