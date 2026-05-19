@@ -4,18 +4,29 @@ on:
   workflow_dispatch:
     inputs:
       channel:
-        description: "Kanal kodu (coding, zen, vault, chakra, beach, summer, pets, breathe, cosmic, ocean, mediterranean, rain)"
-        required: true
-        default: "coding"
+        description: "Kanal kodu (boş bırakırsan tüm kanallar çalışır)"
+        required: false
+        default: ""
       count:
         description: "Kaç shorts üretilsin? (1-3)"
-        required: true
+        required: false
         default: "3"
+  schedule:
+    - cron: "0 2 * * *"  # Her gün 02:00 UTC — tüm kanallar
 
 jobs:
   run-shorts:
     runs-on: ubuntu-latest
     timeout-minutes: 120
+
+    strategy:
+      fail-fast: false
+      max-parallel: 6
+      matrix:
+        channel: ${{ fromJSON(
+          github.event_name == 'workflow_dispatch' && inputs.channel != '' && format('["{0}"]', inputs.channel)
+          || '["coding","zen","vault","chakra","beach","summer","pets","breathe","cosmic","ocean","mediterranean","rain"]'
+          ) }}
 
     steps:
       - name: Checkout repo
@@ -70,7 +81,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Run Shorts Pipeline
+      - name: Run Shorts Pipeline for ${{ matrix.channel }}
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           DRIVE_TOKEN_HESAP98: ${{ secrets.DRIVE_TOKEN_HESAP98 }}
@@ -92,4 +103,5 @@ jobs:
           YT_TOKEN_MEDITERRANEAN: ${{ secrets.YT_TOKEN_MEDITERRANEAN }}
           YT_TOKEN_RAIN: ${{ secrets.YT_TOKEN_RAIN }}
         run: |
-          python main_shorts.py ${{ inputs.channel }} ${{ inputs.count }}
+          COUNT=${{ github.event_name == 'workflow_dispatch' && inputs.count || '3' }}
+          python main_shorts.py ${{ matrix.channel }} $COUNT
