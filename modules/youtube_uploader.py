@@ -5,6 +5,7 @@ Token JSON kullanarak ilgili kanala yükleme yapar.
 import os
 import json
 import time
+import random
 from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaFileUpload
@@ -129,9 +130,35 @@ def upload_thumbnail(youtube_token_json, video_id, thumbnail_path):
     print(f"✅ Thumbnail eklendi")
 
 
-def upload_complete(youtube_token_json, video_path, thumbnail_path, title, description, tags, expected_channel_id=None):
+def post_comment(youtube_token_json, video_id, comment_text):
     """
-    Video + thumbnail'i tek seferde yükler.
+    Videoya yorum atar.
+    """
+    service = _get_youtube_service(youtube_token_json)
+
+    try:
+        service.commentThreads().insert(
+            part="snippet",
+            body={
+                "snippet": {
+                    "videoId": video_id,
+                    "topLevelComment": {
+                        "snippet": {
+                            "textOriginal": comment_text,
+                        }
+                    }
+                }
+            }
+        ).execute()
+        print(f"💬 Yorum atıldı: {comment_text[:50]}...")
+    except Exception as e:
+        print(f"⚠️  Yorum atılamadı: {e}")
+
+
+def upload_complete(youtube_token_json, video_path, thumbnail_path, title, description, tags,
+                    expected_channel_id=None, channel_config=None):
+    """
+    Video + thumbnail'i tek seferde yükler, ardından yorum atar.
     Returns: {"video_id": "...", "url": "..."}
     """
     result = upload_video(
@@ -149,6 +176,14 @@ def upload_complete(youtube_token_json, video_path, thumbnail_path, title, descr
         upload_thumbnail(youtube_token_json, result["video_id"], thumbnail_path)
     except Exception as e:
         print(f"⚠️  Thumbnail yüklenemedi (video yüklendi ama): {e}")
+
+    # Uzun video yorumu at
+    if channel_config:
+        comments = channel_config.get("long_video_comments", [])
+        if comments:
+            comment = random.choice(comments)
+            time.sleep(5)  # YouTube'un videoyu işlemesi için bekle
+            post_comment(youtube_token_json, result["video_id"], comment)
 
     return result
 
@@ -261,6 +296,14 @@ def upload_short(youtube_token_json, video_path, title, description,
     print()
     video_id = response["id"]
     print(f"✅ Short yüklendi: https://youtu.be/{video_id}")
+
+    # Shorts yorumu at (sadece public videolarda)
+    if not scheduled_at and channel_config:
+        comments = channel_config.get("short_video_comments", [])
+        if comments:
+            comment = random.choice(comments)
+            time.sleep(5)
+            post_comment(youtube_token_json, video_id, comment)
 
     return {"video_id": video_id, "url": f"https://youtu.be/{video_id}"}
 
