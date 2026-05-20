@@ -115,6 +115,7 @@ def run_pipeline(channel_code):
             metadata["description"],
             metadata["tags"],
             expected_channel_id=channel["channel_id"],
+            channel_config=channel,  # ← BU SATIRI EKLE
         )
 
         print("\n" + "=" * 60)
