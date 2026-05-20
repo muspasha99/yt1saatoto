@@ -46,7 +46,7 @@ def _call_gemini(content_parts, max_retries_per_key=2):
                 return response
             except Exception as e:
                 err = str(e)
-                if "429" in err or "quota" in err.lower() or "rate" in err.lower():
+                if "429" in err or "quota" in err.lower() or "rate" in err.lower() or "504" in err or "timeout" in err.lower() or "deadline" in err.lower():
                     if attempt < max_retries_per_key - 1:
                         wait = 30 * (attempt + 1)
                         print(f"   ⏳ Key {key_idx + 1} rate limit, {wait}s bekleniyor...")
