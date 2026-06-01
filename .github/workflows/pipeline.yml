@@ -140,6 +140,7 @@ jobs:
       - name: Run pipeline for channel ${{ matrix.channel }}
         if: steps.check.outputs.run == 'true'
         env:
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           GEMINI_API_KEY_2: ${{ secrets.GEMINI_API_KEY_2 }}
           GEMINI_API_KEY_3: ${{ secrets.GEMINI_API_KEY_3 }}
