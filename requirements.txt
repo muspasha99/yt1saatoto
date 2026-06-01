@@ -7,3 +7,4 @@ Pillow>=11.0.0
 requests>=2.30.0
 ffmpeg-python>=0.2.0
 numpy==1.26.4
+groq
