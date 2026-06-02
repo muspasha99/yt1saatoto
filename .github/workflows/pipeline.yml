@@ -8,16 +8,18 @@ on:
         required: true
         default: "coding"
   schedule:
-    - cron: "0 1 * * *"   # breathe
-    - cron: "0 2 * * *"   # ocean
-    - cron: "0 3 * * *"   # cosmic
+    # --- GRUP A (tek günler: 1,3,5,...) ---
     - cron: "0 9 * * *"   # vault
     - cron: "0 10 * * *"  # zen, chakra
-    - cron: "0 11 * * *"  # pets
-    - cron: "0 13 * * *"  # rain
     - cron: "0 14 * * *"  # beach
     - cron: "0 15 * * *"  # summer
     - cron: "0 16 * * *"  # coding
+    # --- GRUP B (çift günler: 2,4,6,...) ---
+    - cron: "0 1 * * *"   # breathe
+    - cron: "0 2 * * *"   # ocean
+    - cron: "0 3 * * *"   # cosmic
+    - cron: "0 11 * * *"  # pets
+    - cron: "0 13 * * *"  # rain
     - cron: "0 17 * * *"  # mediterranean
 
 jobs:
@@ -52,28 +54,45 @@ jobs:
           EVENT="${{ github.event_name }}"
           INPUT="${{ inputs.channel }}"
 
+          # Manuel tetiklemede gün filtresi yok — direkt çalıştır
           if [ "$EVENT" = "workflow_dispatch" ]; then
             if [ "$CHANNEL" = "$INPUT" ]; then
               echo "run=true" >> $GITHUB_OUTPUT
             else
               echo "run=false" >> $GITHUB_OUTPUT
             fi
-          else
-            case "$SCHEDULE" in
-              "0 1 * * *")  [ "$CHANNEL" = "breathe" ] && echo "run=true" >> $GITHUB_OUTPUT || echo "run=false" >> $GITHUB_OUTPUT ;;
-              "0 2 * * *")  [ "$CHANNEL" = "ocean" ] && echo "run=true" >> $GITHUB_OUTPUT || echo "run=false" >> $GITHUB_OUTPUT ;;
-              "0 3 * * *")  [ "$CHANNEL" = "cosmic" ] && echo "run=true" >> $GITHUB_OUTPUT || echo "run=false" >> $GITHUB_OUTPUT ;;
-              "0 9 * * *")  [ "$CHANNEL" = "vault" ] && echo "run=true" >> $GITHUB_OUTPUT || echo "run=false" >> $GITHUB_OUTPUT ;;
-              "0 10 * * *") { [ "$CHANNEL" = "zen" ] || [ "$CHANNEL" = "chakra" ]; } && echo "run=true" >> $GITHUB_OUTPUT || echo "run=false" >> $GITHUB_OUTPUT ;;
-              "0 11 * * *") [ "$CHANNEL" = "pets" ] && echo "run=true" >> $GITHUB_OUTPUT || echo "run=false" >> $GITHUB_OUTPUT ;;
-              "0 13 * * *") [ "$CHANNEL" = "rain" ] && echo "run=true" >> $GITHUB_OUTPUT || echo "run=false" >> $GITHUB_OUTPUT ;;
-              "0 14 * * *") [ "$CHANNEL" = "beach" ] && echo "run=true" >> $GITHUB_OUTPUT || echo "run=false" >> $GITHUB_OUTPUT ;;
-              "0 15 * * *") [ "$CHANNEL" = "summer" ] && echo "run=true" >> $GITHUB_OUTPUT || echo "run=false" >> $GITHUB_OUTPUT ;;
-              "0 16 * * *") [ "$CHANNEL" = "coding" ] && echo "run=true" >> $GITHUB_OUTPUT || echo "run=false" >> $GITHUB_OUTPUT ;;
-              "0 17 * * *") [ "$CHANNEL" = "mediterranean" ] && echo "run=true" >> $GITHUB_OUTPUT || echo "run=false" >> $GITHUB_OUTPUT ;;
-              *) echo "run=false" >> $GITHUB_OUTPUT ;;
-            esac
+            exit 0
           fi
+
+          # Gün gruplaması
+          DAY=$(date +%-d)
+          IS_ODD=$((DAY % 2))   # 1 = tek gün (Grup A), 0 = çift gün (Grup B)
+
+          GROUP_A="coding zen vault chakra beach summer"
+          GROUP_B="pets breathe cosmic ocean mediterranean rain"
+
+          # Bu kanal bugün çalışmalı mı?
+          if echo "$GROUP_A" | grep -qw "$CHANNEL"; then
+            [ "$IS_ODD" -eq 0 ] && echo "run=false" >> $GITHUB_OUTPUT && exit 0
+          elif echo "$GROUP_B" | grep -qw "$CHANNEL"; then
+            [ "$IS_ODD" -eq 1 ] && echo "run=false" >> $GITHUB_OUTPUT && exit 0
+          fi
+
+          # Saat eşleşmesi
+          case "$SCHEDULE" in
+            "0 1 * * *")  [ "$CHANNEL" = "breathe" ]      && echo "run=true" >> $GITHUB_OUTPUT || echo "run=false" >> $GITHUB_OUTPUT ;;
+            "0 2 * * *")  [ "$CHANNEL" = "ocean" ]        && echo "run=true" >> $GITHUB_OUTPUT || echo "run=false" >> $GITHUB_OUTPUT ;;
+            "0 3 * * *")  [ "$CHANNEL" = "cosmic" ]       && echo "run=true" >> $GITHUB_OUTPUT || echo "run=false" >> $GITHUB_OUTPUT ;;
+            "0 9 * * *")  [ "$CHANNEL" = "vault" ]        && echo "run=true" >> $GITHUB_OUTPUT || echo "run=false" >> $GITHUB_OUTPUT ;;
+            "0 10 * * *") { [ "$CHANNEL" = "zen" ] || [ "$CHANNEL" = "chakra" ]; } && echo "run=true" >> $GITHUB_OUTPUT || echo "run=false" >> $GITHUB_OUTPUT ;;
+            "0 11 * * *") [ "$CHANNEL" = "pets" ]         && echo "run=true" >> $GITHUB_OUTPUT || echo "run=false" >> $GITHUB_OUTPUT ;;
+            "0 13 * * *") [ "$CHANNEL" = "rain" ]         && echo "run=true" >> $GITHUB_OUTPUT || echo "run=false" >> $GITHUB_OUTPUT ;;
+            "0 14 * * *") [ "$CHANNEL" = "beach" ]        && echo "run=true" >> $GITHUB_OUTPUT || echo "run=false" >> $GITHUB_OUTPUT ;;
+            "0 15 * * *") [ "$CHANNEL" = "summer" ]       && echo "run=true" >> $GITHUB_OUTPUT || echo "run=false" >> $GITHUB_OUTPUT ;;
+            "0 16 * * *") [ "$CHANNEL" = "coding" ]       && echo "run=true" >> $GITHUB_OUTPUT || echo "run=false" >> $GITHUB_OUTPUT ;;
+            "0 17 * * *") [ "$CHANNEL" = "mediterranean" ] && echo "run=true" >> $GITHUB_OUTPUT || echo "run=false" >> $GITHUB_OUTPUT ;;
+            *) echo "run=false" >> $GITHUB_OUTPUT ;;
+          esac
 
       - name: Checkout repo
         if: steps.check.outputs.run == 'true'
