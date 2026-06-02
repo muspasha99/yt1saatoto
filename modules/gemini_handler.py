@@ -72,7 +72,12 @@ def _clean_json_response(text):
     text = text.strip()
     text = re.sub(r"^```(?:json)?\s*", "", text)
     text = re.sub(r"\s*```$", "", text)
-    return text.strip()
+    text = text.strip()
+    # JSON objesini direkt çıkar — sonrasındaki ekstra metni at
+    match = re.search(r'\{.*\}', text, re.DOTALL)
+    if match:
+        return match.group()
+    return text
 
 
 def generate_metadata(api_key, channel_config, channel_prompts, thumbnail_path=None):
