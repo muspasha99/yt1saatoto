@@ -142,7 +142,7 @@ Respond ONLY with valid JSON:
     cleaned = _clean_json_response(raw_text)
 
     try:
-        data = json.loads(cleaned)
+        data = json.loads(cleaned, strict=False)
     except json.JSONDecodeError as e:
         print(f"⚠️  Groq parse hatası:\n{raw_text}")
         raise Exception(f"Groq JSON hatası: {e}")
