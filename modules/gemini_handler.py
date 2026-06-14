@@ -80,6 +80,22 @@ def _clean_json_response(text):
     return text
 
 
+def _clean_tags(tags):
+    """YouTube için geçersiz karakterleri tag'lerden temizler."""
+    cleaned = []
+    for tag in tags:
+        # Sadece harf, rakam, boşluk, tire, apostrof bırak
+        tag = re.sub(r'[^\w\s\-\']', '', str(tag), flags=re.UNICODE)
+        tag = tag.strip()
+        # Boş veya çok uzun tag'leri at
+        if 1 <= len(tag) <= 100:
+            cleaned.append(tag)
+    # YouTube toplam tag limiti: 500 karakter
+    while sum(len(t) for t in cleaned) > 500 and len(cleaned) > 5:
+        cleaned.pop()
+    return cleaned
+
+
 def generate_metadata(api_key, channel_config, channel_prompts, thumbnail_path=None):
     """
     SEO odaklı metadata üretir.
@@ -130,7 +146,7 @@ PRIMARY SEO KEYWORD (optimize for this): "{primary_keyword}"
 - Next 3-4 = close variations of primary keyword
 - Then 4-5 long-tail related tags (3+ words each)
 - Then 3-4 broad niche tags (2-3 words)
-- All lowercase, no special characters
+- All lowercase, no special characters, no hashtags
 - NO single-word tags
 
 Respond ONLY with valid JSON:
@@ -165,10 +181,8 @@ Respond ONLY with valid JSON:
         hashtags = " ".join(f"#{tag.replace(' ', '')}" for tag in data["tags"][:5])
         data["description"] = desc.strip() + f"\n\n{hashtags}"
 
-    tags = data["tags"]
-    while len(",".join(tags)) > 500 and len(tags) > 5:
-        tags.pop()
-    data["tags"] = tags
+    # Tag temizleme
+    data["tags"] = _clean_tags(data["tags"])
 
     print(f"   ✓ Başlık: {data['title']}")
     print(f"   ✓ Açıklama: {len(data['description'])} karakter")
@@ -213,7 +227,6 @@ Respond ONLY with the text itself.
 Examples: "Lock in. No excuses." / "Breathe. Just breathe." / "Deep work. Deep life."
 """
 
-    # Groq'ta rate limit çok geniş, beklemeye gerek yok
     raw_text = _call_groq(prompt, system)
     text = raw_text.strip().strip('"').strip("'")
 
