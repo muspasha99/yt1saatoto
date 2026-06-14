@@ -3,6 +3,7 @@ YouTube Data API v3 ile video yükler.
 Token JSON kullanarak ilgili kanala yükleme yapar.
 """
 import os
+import re
 import json
 import time
 import random
@@ -10,6 +11,19 @@ from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaFileUpload
 from googleapiclient.errors import HttpError
+
+
+def _clean_tags(tags):
+    """YouTube için geçersiz karakterleri tag'lerden temizler."""
+    cleaned = []
+    for tag in tags:
+        tag = re.sub(r'[^\w\s\-\']', '', str(tag), flags=re.UNICODE)
+        tag = tag.strip()
+        if 1 <= len(tag) <= 100:
+            cleaned.append(tag)
+    while sum(len(t) for t in cleaned) > 500 and len(cleaned) > 5:
+        cleaned.pop()
+    return cleaned
 
 
 def _get_youtube_service(token_json_str):
@@ -41,11 +55,13 @@ def upload_video(youtube_token_json, video_path, title, description, tags, expec
                 f"Token yanlış kanala ait! Beklenen: {expected_channel_id}, gelen: {actual_id}"
             )
 
+    clean_tags = _clean_tags(tags or [])
+
     body = {
         "snippet": {
             "title": title,
             "description": description,
-            "tags": tags,
+            "tags": clean_tags,
             "categoryId": "10",
             "defaultLanguage": "en",
             "defaultAudioLanguage": "en",
@@ -131,9 +147,7 @@ def upload_thumbnail(youtube_token_json, video_id, thumbnail_path):
 
 
 def post_comment(youtube_token_json, video_id, comment_text):
-    """
-    Videoya yorum atar.
-    """
+    """Videoya yorum atar."""
     service = _get_youtube_service(youtube_token_json)
 
     try:
@@ -177,12 +191,11 @@ def upload_complete(youtube_token_json, video_path, thumbnail_path, title, descr
     except Exception as e:
         print(f"⚠️  Thumbnail yüklenemedi (video yüklendi ama): {e}")
 
-    # Uzun video yorumu at
     if channel_config:
         comments = channel_config.get("long_video_comments", [])
         if comments:
             comment = random.choice(comments)
-            time.sleep(5)  # YouTube'un videoyu işlemesi için bekle
+            time.sleep(5)
             post_comment(youtube_token_json, result["video_id"], comment)
 
     return result
@@ -221,7 +234,7 @@ def upload_short(youtube_token_json, video_path, title, description,
     if "#Shorts" not in title and "#shorts" not in title:
         title = title + " #Shorts"
 
-    shorts_tags = ["shorts", "youtubeshorts"] + (tags or [])
+    shorts_tags = _clean_tags(["shorts", "youtubeshorts"] + (tags or []))
 
     if scheduled_at:
         privacy_status = "private"
@@ -297,7 +310,6 @@ def upload_short(youtube_token_json, video_path, title, description,
     video_id = response["id"]
     print(f"✅ Short yüklendi: https://youtu.be/{video_id}")
 
-    # Shorts yorumu at (sadece public videolarda)
     if not scheduled_at and channel_config:
         comments = channel_config.get("short_video_comments", [])
         if comments:
@@ -309,9 +321,7 @@ def upload_short(youtube_token_json, video_path, title, description,
 
 
 def get_latest_video_id(youtube_token_json, expected_channel_id=None):
-    """
-    Kanalın en son yüklenen videosunun ID'sini döner.
-    """
+    """Kanalın en son yüklenen videosunun ID'sini döner."""
     service = _get_youtube_service(youtube_token_json)
 
     channels = service.channels().list(part="contentDetails", mine=True).execute()
