@@ -43,7 +43,7 @@ def _call_groq(prompt, system=None, max_retries_per_key=3):
         for attempt in range(max_retries_per_key):
             try:
                 response = client.chat.completions.create(
-                    model="llama3-8b-8192",
+                    model="openai/gpt-oss-20b",
                     messages=messages,
                     max_tokens=1024,
                     temperature=0.85,
