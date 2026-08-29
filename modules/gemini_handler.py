@@ -1,7 +1,7 @@
 """
 Groq API ile başlık, açıklama ve etiket üretir.
 Gemini_handler yerine kullanılır — aynı fonksiyon imzaları korundu.
-Model: llama-3.3-70b-versatile (ücretsiz, 14.400 istek/gün) değiştirdim llama-3.1-8b-instant ile. eskisi kaldırılmıştı.
+Model: llama-3.3-70b-versatile (ücretsiz, 14.400 istek/gün) değiştirdim llama3-8b-8192 ile. eskisi kaldırılmıştı.
 """
 import os
 import time
@@ -43,7 +43,7 @@ def _call_groq(prompt, system=None, max_retries_per_key=3):
         for attempt in range(max_retries_per_key):
             try:
                 response = client.chat.completions.create(
-                    model="llama-3.1-8b-instant",
+                    model="llama3-8b-8192",
                     messages=messages,
                     max_tokens=1024,
                     temperature=0.85,
